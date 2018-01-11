@@ -3,17 +3,16 @@
 #include "MessageDispatcher.h"
 #include "AID.h"
 #include "AclMessage.h"
-#include "Behaviour.h"
 #include <list>
 
 class Agent{
   private:
     MessageDispatcher messageDispatcher;
     AID aid;
-    std::list<Behaviour> behaviours;
+    std::list<std::function< void()>> behaviours;
   
   public:
-    virtual void setup();
+    virtual void setup(){}
     
     Agent(String name, int port){
       messageDispatcher.init("It Hurts When IP", "GlobalWarmingIsAMyth300AlGore", port);
@@ -22,7 +21,10 @@ class Agent{
       aid = _aid;
 
       messageDispatcher.advertise(aid.getName(), "Dit is een omschrijving", "20171031-21:57:38:513000");
-      addBehaviour(sendAndReceiveBehaviour);
+      addBehaviour([this]{
+          messageDispatcher.fillQueue();
+          messageDispatcher.sendCache();
+        });
       
       setup();
     }
@@ -40,20 +42,12 @@ class Agent{
     }
 
     void doBehaviours(){
-      for(Behaviour behaviour : behaviours){
-        behaviour.action();
+      for(std::function<void ()> behaviour : behaviours){
+        behaviour();
       }
     }
 
-    class SendAndReceiveBehaviour : public Behaviour{
-      public:
-        virtual void action(){
-          messageDispatcher.fillQueue();
-          messageDispatcher.sendCache();
-        }
-    } sendAndReceiveBehaviour;
-
-    void addBehaviour(Behaviour behaviour){
+    void addBehaviour(std::function< void()> behaviour){
       behaviours.push_back(behaviour);
     }
 };
