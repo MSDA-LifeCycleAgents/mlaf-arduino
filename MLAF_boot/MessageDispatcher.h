@@ -4,9 +4,19 @@
 
 class MessageDispatcher{
   public:
-    MessageDispatcher(String wifi_ssid, String wifi_pass, int& _port){
-      socket(wifi_ssid, wifi_pass, _port);
+    MessageDispatcher(){}
+  
+    void init(String wifi_ssid, String wifi_pass, int _port){
+      socket.init(wifi_ssid, wifi_pass, _port);
     }
+
+    String getIpAddress(){
+      return socket.getIpAddressAsString();
+    }
+
+   void advertise(String name, String description, String timestamp){
+      socket.advertise(name, description, timestamp);
+   }
     
     AclMessage& receive(){
       AclMessage result;
@@ -38,7 +48,7 @@ class MessageDispatcher{
     }
   
   private:
-    TcpSocket& socket;
+    TcpSocket socket;
     std::list<AclMessage> messageQueue;
     std::list<AclMessage> cache;
 };

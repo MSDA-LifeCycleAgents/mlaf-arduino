@@ -16,12 +16,12 @@ class Agent{
     virtual void setup();
     
     Agent(String name, int port){
-      messageDispatcher("It Hurts When IP", "GlobalWarmingIsAMyth300AlGore", port);
+      messageDispatcher.init("It Hurts When IP", "GlobalWarmingIsAMyth300AlGore", port);
 
-      AID _aid(name, socket.getIpAddressAsString());
+      AID _aid(name, messageDispatcher.getIpAddress());
       aid = _aid;
 
-      socket.advertise(aid.getName(), "Dit is een omschrijving", "20171031-21:57:38:513000");
+      messageDispatcher.advertise(aid.getName(), "Dit is een omschrijving", "20171031-21:57:38:513000");
       addBehaviour(sendAndReceiveBehaviour);
       
       setup();

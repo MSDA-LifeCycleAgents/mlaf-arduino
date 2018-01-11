@@ -18,7 +18,9 @@ class TcpSocket{
       return String(ip[0]) + String(".") + String(ip[1]) + String(".") + String(ip[2]) + String(".") + String(ip[3]);
     }
 
-    TcpSocket(String wifi_ssid, String wifi_pass, int& _port){
+    TcpSocket(){}
+
+    void init(String wifi_ssid, String wifi_pass, int _port){
       port = _port;
       server = new WiFiServer(port);
       
