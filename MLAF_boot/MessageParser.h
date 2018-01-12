@@ -16,7 +16,7 @@ class MessageParser{
     String toXml(AclMessage message){
       XMLDocument doc;
 
-      // parse envelope
+      addEnvelopeToXml(doc, message.envelope);
       
       auto root = doc.NewElement("fipa-message");
       String perf = performativeToString(message.performative);
@@ -61,6 +61,8 @@ class MessageParser{
       String ontology = root->FirstChildElement("ontology")->GetText();
       String protocol = root->FirstChildElement("protocol")->GetText();
       String conversationID = root->FirstChildElement("conversationID")->GetText();
+
+      Envelope envelope = xmlToEnvelope(doc.FirstChildElement("envelope"));
       
       AclMessage aclMessage(AGREE);
       aclMessage.sender = sender;
@@ -70,13 +72,42 @@ class MessageParser{
       aclMessage.ontology = ontology;
       aclMessage.protocol = protocol;
       aclMessage.conversationID = conversationID;
-      
-      // parse envelope
+      aclMessage.envelope = envelope;
       
       return aclMessage;
     }
     
   private:
+    void addEnvelopeToXml(XMLDocument& doc, Envelope& envelope){
+      // to do
+    }
+  
+    Envelope xmlToEnvelope(XMLElement* element){
+      Envelope envelope;
+
+      auto root = element->FirstChildElement("params");
+      
+      auto xmlTo = root->FirstChildElement("to");
+      AID to = xmlToAid(xmlTo);
+
+      auto xmlFrom = root->FirstChildElement("from");
+      AID from = xmlToAid(xmlFrom);
+
+      String aclRepresentation = root->FirstChildElement("acl-representation")->GetText();
+      String payloadEncoding = root->FirstChildElement("payload-encoding")->GetText();
+      String payloadLength = root->FirstChildElement("payload-length")->GetText();
+      String date = root->FirstChildElement("date")->GetText();
+
+      envelope.to = to;
+      envelope.from = from;
+      envelope.aclRepresentation = aclRepresentation;
+      envelope.payloadEncoding = payloadEncoding;
+      envelope.payloadLength = payloadLength.toInt();
+      envelope.date = date;
+
+      return envelope;
+    }
+  
     XMLElement* AidToXml(XMLDocument& doc, AID aid){
       auto agentIdentifier = doc.NewElement("agent-identifier");
       auto agent_name = doc.NewElement("name");

@@ -62,6 +62,7 @@ class MessageDispatcher{
       env.from = message.sender;
       env.intendedReceiver = message.receiver;
       env.aclRepresentation = "fipa.acl.rep.string.std";
+      env.payloadEncoding = "US-ASCII";
       message.envelope = env;
     }
 };
