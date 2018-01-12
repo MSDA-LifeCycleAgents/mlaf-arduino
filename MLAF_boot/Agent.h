@@ -21,7 +21,7 @@ class Agent{
       AID _aid(name, messageDispatcher.getIpAddress());
       aid = _aid;
 
-      messageDispatcher.advertise(aid.getName(), "Dit is een omschrijving", "20171031-21:57:38:513000");
+      messageDispatcher.advertise(aid.getName(), mdns_description, "20171031-21:57:38:513000");
       addBehaviour([this]{
           messageDispatcher.fillQueue();
           messageDispatcher.sendCache();
