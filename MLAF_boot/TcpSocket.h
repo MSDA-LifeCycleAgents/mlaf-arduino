@@ -54,8 +54,6 @@ class TcpSocket{
       AclMessage message;
       client = server->available();
       if(client){
-        Serial.println("Found incoming traffic.");
-        
         boolean currentLineIsBlank = true;
         while (client.connected()) {
           if (client.available()) {
@@ -64,7 +62,6 @@ class TcpSocket{
             request += c;
     
             if (c == '\n' && currentLineIsBlank) {
-              Serial.println("Received: " + request);
               MessageParser parser;
               message = parser.fromXml(request);
               request = "";

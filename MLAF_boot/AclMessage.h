@@ -1,4 +1,5 @@
 #pragma once
+#include "Envelope.h"
 
 enum Performative{
   ACCEPT_PROPOSAL,
@@ -26,6 +27,7 @@ enum Performative{
 
 class AclMessage{
   public:
+    Envelope envelope;
     Performative performative;
     AID sender;
     AID receiver;

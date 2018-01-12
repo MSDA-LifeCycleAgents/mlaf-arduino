@@ -1,5 +1,6 @@
 #include <list>
 #include "AclMessage.h"
+#include "Envelope.h"
 #include "TcpSocket.h"
 
 class MessageDispatcher{
@@ -29,6 +30,9 @@ class MessageDispatcher{
     }
     
     void send(AclMessage message){
+      // should check for if message.envelope == NULL here, but is not working
+      createEnvelope(message);
+        
       cache.push_back(message);
     }
 
@@ -51,4 +55,13 @@ class MessageDispatcher{
     TcpSocket socket;
     std::list<AclMessage> messageQueue;
     std::list<AclMessage> cache;
+
+    void createEnvelope(AclMessage& message){
+      Envelope env;
+      env.to = message.receiver;
+      env.from = message.sender;
+      env.intendedReceiver = message.receiver;
+      env.aclRepresentation = "fipa.acl.rep.string.std";
+      message.envelope = env;
+    }
 };

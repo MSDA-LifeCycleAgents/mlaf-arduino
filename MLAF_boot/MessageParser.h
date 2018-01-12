@@ -15,25 +15,27 @@ class MessageParser{
     
     String toXml(AclMessage message){
       XMLDocument doc;
+
+      // parse envelope
+      
       auto root = doc.NewElement("fipa-message");
       String perf = performativeToString(message.performative);
       root->SetAttribute("communicative-act", perf);
       doc.InsertEndChild(root);
-
+      
       auto sender = doc.NewElement("sender");
-      auto sender_name = doc.NewElement("name");
-      sender_name->SetText(message.sender.getName());
-      auto sender_addrss = doc.NewElement("addresses");
-      auto sender_addr = doc.NewElement("address");
-      sender_addr->SetText(message.sender.getAddress());
-      sender_addrss->InsertEndChild(sender_addr);
-      sender->InsertEndChild(sender_name);
-      sender->InsertEndChild(sender_addrss);
+      sender->InsertEndChild(AidToXml(doc, message.sender));
       root->InsertEndChild(sender);
 
-      auto content = doc.NewElement("content");
-      content->SetText(message.content);
-      root->InsertEndChild(content);
+      auto receiver = doc.NewElement("receiver");
+      receiver->InsertEndChild(AidToXml(doc, message.receiver));
+      root->InsertEndChild(receiver);
+      
+      addTag(doc, root, "content", message.content);
+      addTag(doc, root, "language", message.language);
+      addTag(doc, root, "ontology", message.ontology);
+      addTag(doc, root, "protocol", message.protocol);
+      addTag(doc, root, "conversationID", message.conversationID);
       
       XMLPrinter printer;
       doc.Print(&printer);
@@ -48,22 +50,64 @@ class MessageParser{
       String perfStr = root->Attribute("communicative-act");
       Performative performative = stringToPerformative(perfStr);
 
-      auto sender = root->FirstChildElement("sender");
-      String sender_name = sender->FirstChildElement("name")->GetText();
-      auto sender_addrss = sender->FirstChildElement("addresses");
-      String sender_addr = sender_addrss->FirstChildElement("address")->GetText();
-
+      auto xmlSender = root->FirstChildElement("sender");
+      AID sender = xmlToAid(xmlSender);
+      
+      auto xmlReceiver = root->FirstChildElement("receiver");
+      AID receiver = xmlToAid(xmlReceiver);
+      
       String content = root->FirstChildElement("content")->GetText();
+      String language = root->FirstChildElement("language")->GetText();
+      String ontology = root->FirstChildElement("ontology")->GetText();
+      String protocol = root->FirstChildElement("protocol")->GetText();
+      String conversationID = root->FirstChildElement("conversationID")->GetText();
       
       AclMessage aclMessage(AGREE);
-      AID aclSender(sender_name, sender_addr);
-      aclMessage.sender = aclSender;
+      aclMessage.sender = sender;
+      aclMessage.receiver = receiver;
       aclMessage.content = content;
+      aclMessage.language = language;
+      aclMessage.ontology = ontology;
+      aclMessage.protocol = protocol;
+      aclMessage.conversationID = conversationID;
+      
+      // parse envelope
       
       return aclMessage;
     }
     
-  private:  
+  private:
+    XMLElement* AidToXml(XMLDocument& doc, AID aid){
+      auto agentIdentifier = doc.NewElement("agent-identifier");
+      auto agent_name = doc.NewElement("name");
+      agent_name->SetText(aid.getName());
+      auto agent_addrss = doc.NewElement("addresses");
+      auto agent_addr = doc.NewElement("address");
+      agent_addr->SetText(aid.getAddress());
+
+      agent_addrss->InsertEndChild(agent_addr);
+      agentIdentifier->InsertEndChild(agent_name);
+      agentIdentifier->InsertEndChild(agent_addrss);
+
+      return agentIdentifier;
+    }
+
+    AID xmlToAid(XMLElement* element){
+      auto agentIdentifier = element->FirstChildElement("agent-identifier");
+      String agent_name = agentIdentifier->FirstChildElement("name")->GetText();
+      auto agent_addrss = agentIdentifier->FirstChildElement("addresses");
+      String agent_addr = agent_addrss->FirstChildElement("address")->GetText();
+
+      AID aid(agent_name, agent_addr);
+      return aid;
+    }
+
+    void addTag(XMLDocument& doc, XMLElement* element, const char* tagName, String value){
+      auto tag = doc.NewElement(tagName);
+      tag->SetText(value);
+      element->InsertEndChild(tag);
+    }
+    
     String performativeToString(Performative performative){
       return performatives[performative];
     }
