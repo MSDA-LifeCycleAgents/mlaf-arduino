@@ -15,8 +15,6 @@ class MessageParser{
     
     String toXml(AclMessage message){
       XMLDocument doc;
-
-      addEnvelopeToXml(doc, message.envelope);
       
       auto root = doc.NewElement("fipa-message");
       String perf = performativeToString(message.performative);
@@ -36,6 +34,9 @@ class MessageParser{
       addTag(doc, root, "ontology", message.ontology);
       addTag(doc, root, "protocol", message.protocol);
       addTag(doc, root, "conversationID", message.conversationID);
+
+      message.envelope.payloadLength = getMessageLength(doc);
+      addEnvelopeToXml(doc, message.envelope);
       
       XMLPrinter printer;
       doc.Print(&printer);
@@ -78,8 +79,39 @@ class MessageParser{
     }
     
   private:
+    int getMessageLength(XMLDocument& doc){
+      XMLPrinter printer;
+      doc.Print(&printer);
+      String message = printer.CStr();
+      return message.length();
+    }
+  
     void addEnvelopeToXml(XMLDocument& doc, Envelope& envelope){
-      // to do
+      // to do     -> 
+      
+      auto envelopeElement = doc.NewElement("envelope");
+      auto root = doc.NewElement("params");
+      root->SetAttribute("index", "1");
+
+      auto from = doc.NewElement("from");
+      from->InsertEndChild(AidToXml(doc, envelope.from));
+      root->InsertEndChild(from);
+
+      auto to = doc.NewElement("to");
+      to->InsertEndChild(AidToXml(doc, envelope.to));
+      root->InsertEndChild(to);
+
+      auto intendedReceiver = doc.NewElement("intendedReceiver");
+      intendedReceiver->InsertEndChild(AidToXml(doc, envelope.intendedReceiver));
+      root->InsertEndChild(intendedReceiver);
+
+      addTag(doc, root, "acl-representation", envelope.aclRepresentation);
+      addTag(doc, root, "payload-encoding", envelope.payloadEncoding);
+      addTag(doc, root, "payload-length", String(envelope.payloadLength));
+      addTag(doc, root, "date", envelope.date);
+      
+      envelopeElement->InsertEndChild(root);
+      doc.InsertFirstChild(envelopeElement);
     }
   
     Envelope xmlToEnvelope(XMLElement* element){

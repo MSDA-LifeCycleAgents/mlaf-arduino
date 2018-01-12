@@ -58,7 +58,6 @@ class TcpSocket{
         while (client.connected()) {
           if (client.available()) {
             char c = client.read();
-            Serial.print(c);
             request += c;
     
             if (c == '\n' && currentLineIsBlank) {
