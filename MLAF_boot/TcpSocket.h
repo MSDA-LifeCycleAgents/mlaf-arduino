@@ -37,14 +37,16 @@ class TcpSocket{
       char pass_arr[50];
       wifi_pass.toCharArray(pass_arr, 50);
       
-      WiFi.begin(ssid_arr, pass_arr); 
+      WiFi.begin(ssid_arr, pass_arr);
       
       while (WiFi.status() != WL_CONNECTED) { 
         delay(500);
         Serial.print(".");
       }
-
+      Serial.println("Connected.");
+      
       ip = WiFi.localIP();
+      server->begin();
     }
 
     AclMessage listen(){
@@ -52,6 +54,8 @@ class TcpSocket{
       AclMessage message;
       client = server->available();
       if(client){
+        Serial.println("Found incoming traffic.");
+        
         boolean currentLineIsBlank = true;
         while (client.connected()) {
           if (client.available()) {
@@ -60,6 +64,7 @@ class TcpSocket{
             request += c;
     
             if (c == '\n' && currentLineIsBlank) {
+              Serial.println("Received: " + request);
               MessageParser parser;
               message = parser.fromXml(request);
               request = "";

@@ -44,11 +44,22 @@ class MessageParser{
       XMLDocument doc;
       doc.Parse(message.c_str());
 
-      auto root = doc.FirstChild();
-      
-      // to do: read rest of message
+      auto root = doc.FirstChildElement("fipa-message");
+      String perfStr = root->Attribute("communicative-act");
+      Performative performative = stringToPerformative(perfStr);
+
+      auto sender = root->FirstChildElement("sender");
+      String sender_name = sender->FirstChildElement("name")->GetText();
+      auto sender_addrss = sender->FirstChildElement("addresses");
+      String sender_addr = sender_addrss->FirstChildElement("address")->GetText();
+
+      String content = root->FirstChildElement("content")->GetText();
       
       AclMessage aclMessage(AGREE);
+      AID aclSender(sender_name, sender_addr);
+      aclMessage.sender = aclSender;
+      aclMessage.content = content;
+      
       return aclMessage;
     }
     

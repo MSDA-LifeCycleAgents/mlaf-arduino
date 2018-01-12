@@ -7,6 +7,7 @@ class AgentPlatform{
       while(true){
         // to do: add logic for agent sleeping etc.
         agent.doBehaviours();
+        delay(500);
       }
     }
 };

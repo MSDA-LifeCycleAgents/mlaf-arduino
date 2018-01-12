@@ -15,7 +15,7 @@ class Agent{
     virtual void setup(){}
     
     Agent(String name, int port){
-      messageDispatcher.init("It Hurts When IP", "GlobalWarmingIsAMyth300AlGore", port);
+      messageDispatcher.init("It Hurts When IP", "GelaubenSieDasDieDeutchersKeineHumorHatten", port);
 
       AID _aid(name, messageDispatcher.getIpAddress());
       aid = _aid;
