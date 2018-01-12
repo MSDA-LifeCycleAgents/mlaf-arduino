@@ -146,8 +146,10 @@ class MessageParser{
       agent_name->SetText(aid.getName());
       auto agent_addrss = doc.NewElement("addresses");
       auto agent_addr = doc.NewElement("address");
-      agent_addr->SetText(aid.getAddress());
+      auto addr_url = doc.NewElement("url");
+      addr_url->SetText(aid.getAddress());
 
+      agent_addr->InsertEndChild(addr_url);
       agent_addrss->InsertEndChild(agent_addr);
       agentIdentifier->InsertEndChild(agent_name);
       agentIdentifier->InsertEndChild(agent_addrss);
