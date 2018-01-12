@@ -4,6 +4,7 @@
 #include "AID.h"
 #include "AclMessage.h"
 #include <list>
+#include "Configuration.h"
 
 class Agent{
   private:
@@ -15,7 +16,7 @@ class Agent{
     virtual void setup(){}
     
     Agent(String name, int port){
-      messageDispatcher.init("It Hurts When IP", "GelaubenSieDasDieDeutchersKeineHumorHatten", port);
+      messageDispatcher.init(WiFi_ssid, WiFi_pass, port);
 
       AID _aid(name, messageDispatcher.getIpAddress());
       aid = _aid;
