@@ -45,8 +45,9 @@ class MessageDispatcher{
     }
 
     void fillQueue(){
-      AclMessage message = socket.listen();
+      AclMessage& message = socket.listen();
       if(message != NULL){
+        Serial.println("Adding to message queue");
         messageQueue.push_back(message);
       }
     }

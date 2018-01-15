@@ -33,7 +33,7 @@ class MessageParser{
       addTag(doc, root, "language", message.language);
       addTag(doc, root, "ontology", message.ontology);
       addTag(doc, root, "protocol", message.protocol);
-      addTag(doc, root, "conversationID", message.conversationID);
+      addTag(doc, root, "conversation-id", message.conversationID);
 
       message.envelope.payloadLength = getMessageLength(doc);
       addEnvelopeToXml(doc, message.envelope);
@@ -43,7 +43,7 @@ class MessageParser{
       return printer.CStr();
     }
 
-    AclMessage fromXml(String message){
+    AclMessage& fromXml(String message){
       XMLDocument doc;
       doc.Parse(message.c_str());
 
@@ -61,7 +61,7 @@ class MessageParser{
       String language = root->FirstChildElement("language")->GetText();
       String ontology = root->FirstChildElement("ontology")->GetText();
       String protocol = root->FirstChildElement("protocol")->GetText();
-      String conversationID = root->FirstChildElement("conversationID")->GetText();
+      String conversationID = root->FirstChildElement("conversation-id")->GetText();
 
       Envelope envelope = xmlToEnvelope(doc.FirstChildElement("envelope"));
       
@@ -126,14 +126,12 @@ class MessageParser{
       AID from = xmlToAid(xmlFrom);
 
       String aclRepresentation = root->FirstChildElement("acl-representation")->GetText();
-      String payloadEncoding = root->FirstChildElement("payload-encoding")->GetText();
       String payloadLength = root->FirstChildElement("payload-length")->GetText();
       String date = root->FirstChildElement("date")->GetText();
 
       envelope.to = to;
       envelope.from = from;
       envelope.aclRepresentation = aclRepresentation;
-      envelope.payloadEncoding = payloadEncoding;
       envelope.payloadLength = payloadLength.toInt();
       envelope.date = date;
 
@@ -145,12 +143,10 @@ class MessageParser{
       auto agent_name = doc.NewElement("name");
       agent_name->SetText(aid.getName());
       auto agent_addrss = doc.NewElement("addresses");
-      auto agent_addr = doc.NewElement("address");
       auto addr_url = doc.NewElement("url");
       addr_url->SetText(aid.getAddress());
 
-      agent_addr->InsertEndChild(addr_url);
-      agent_addrss->InsertEndChild(agent_addr);
+      agent_addrss->InsertEndChild(addr_url);
       agentIdentifier->InsertEndChild(agent_name);
       agentIdentifier->InsertEndChild(agent_addrss);
 
@@ -161,7 +157,7 @@ class MessageParser{
       auto agentIdentifier = element->FirstChildElement("agent-identifier");
       String agent_name = agentIdentifier->FirstChildElement("name")->GetText();
       auto agent_addrss = agentIdentifier->FirstChildElement("addresses");
-      String agent_addr = agent_addrss->FirstChildElement("address")->GetText();
+      String agent_addr = agent_addrss->FirstChildElement("url")->GetText();
 
       AID aid(agent_name, agent_addr);
       return aid;
