@@ -1,6 +1,6 @@
 ////Wifi Config////
-#define WiFi_ssid "Met de vriendelijke groeten"
-#define WiFi_pass "rogierfranka"
+#define WiFi_ssid ""
+#define WiFi_pass ""
 
 ////mDNS Config////
 #define mdns_description "Dit is een omschrijving"
