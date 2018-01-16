@@ -6,17 +6,20 @@ class ExampleAgent : public Agent{
 
     void setup(){
       addBehaviour([this]{
-          AclMessage& message = receive();
+          AclMessage* message = receive();
           
           if(message != NULL){
-            Serial.println("Received: " + message.toString());
+            Serial.println("Received: " + message->toString());
     
-            AclMessage response(AGREE);
-            response.sender = getAID();
-            response.receiver = message.sender;
-            response.content = "I received your message!";
+            AclMessage* response = new AclMessage(AGREE);
+            response->sender = getAID();
+            response->receiver = message->sender;
+            response->content = "I received your message!";
 
-            Serial.println("Sending: " + response.toString());
+            delete message;
+            message = NULL;
+            
+            Serial.println("Sending: " + response->toString());
             send(response);
           }
         });

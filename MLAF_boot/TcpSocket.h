@@ -53,9 +53,9 @@ class TcpSocket{
       server->begin();
     }
 
-    AclMessage& listen(){
+    AclMessage* listen(){
       String request;
-      AclMessage message;
+      AclMessage* message = NULL;
       client = server->available();
       if(client){
         boolean currentLineIsBlank = true;
@@ -66,9 +66,9 @@ class TcpSocket{
             if (c == '\n' && currentLineIsBlank) {
               Serial.println("Socket received: " + request);
               MessageParser parser;
-              return parser.fromXml(request);
-//              request = "";
-//              break;
+              message = parser.fromXml(request);
+              request = "";
+              break;
             }
             if (c == '\n') {
               currentLineIsBlank = true;
@@ -81,11 +81,14 @@ class TcpSocket{
       return message;
     }
 
-    int send(AclMessage message){
+    int send(AclMessage* message){
       client = server->available();
       if(client){
         MessageParser parser;
-        return client.println(parser.toXml(message)) > 0;
+        int result = client.println(parser.toXml(message)) > 0;
+        delete message;
+        message = NULL;
+        return result;
       }
       return -1;
     }

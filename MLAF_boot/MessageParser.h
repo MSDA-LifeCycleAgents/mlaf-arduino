@@ -13,37 +13,37 @@ class MessageParser{
   public:
     MessageParser(){}
     
-    String toXml(AclMessage message){
+    String toXml(AclMessage* message){
       XMLDocument doc;
       
       auto root = doc.NewElement("fipa-message");
-      String perf = performativeToString(message.performative);
+      String perf = performativeToString(message->performative);
       root->SetAttribute("communicative-act", perf);
       doc.InsertEndChild(root);
       
       auto sender = doc.NewElement("sender");
-      sender->InsertEndChild(AidToXml(doc, message.sender));
+      sender->InsertEndChild(AidToXml(doc, message->sender));
       root->InsertEndChild(sender);
 
       auto receiver = doc.NewElement("receiver");
-      receiver->InsertEndChild(AidToXml(doc, message.receiver));
+      receiver->InsertEndChild(AidToXml(doc, message->receiver));
       root->InsertEndChild(receiver);
       
-      addTag(doc, root, "content", message.content);
-      addTag(doc, root, "language", message.language);
-      addTag(doc, root, "ontology", message.ontology);
-      addTag(doc, root, "protocol", message.protocol);
-      addTag(doc, root, "conversation-id", message.conversationID);
+      addTag(doc, root, "content", message->content);
+      addTag(doc, root, "language", message->language);
+      addTag(doc, root, "ontology", message->ontology);
+      addTag(doc, root, "protocol", message->protocol);
+      addTag(doc, root, "conversation-id", message->conversationID);
 
-      message.envelope.payloadLength = getMessageLength(doc);
-      addEnvelopeToXml(doc, message.envelope);
+      message->envelope.payloadLength = getMessageLength(doc);
+      addEnvelopeToXml(doc, message->envelope);
       
       XMLPrinter printer;
       doc.Print(&printer);
       return printer.CStr();
     }
 
-    AclMessage& fromXml(String message){
+    AclMessage* fromXml(String message){
       XMLDocument doc;
       doc.Parse(message.c_str());
 
@@ -65,15 +65,15 @@ class MessageParser{
 
       Envelope envelope = xmlToEnvelope(doc.FirstChildElement("envelope"));
       
-      AclMessage aclMessage(AGREE);
-      aclMessage.sender = sender;
-      aclMessage.receiver = receiver;
-      aclMessage.content = content;
-      aclMessage.language = language;
-      aclMessage.ontology = ontology;
-      aclMessage.protocol = protocol;
-      aclMessage.conversationID = conversationID;
-      aclMessage.envelope = envelope;
+      auto aclMessage = new AclMessage(AGREE);
+      aclMessage->sender = sender;
+      aclMessage->receiver = receiver;
+      aclMessage->content = content;
+      aclMessage->language = language;
+      aclMessage->ontology = ontology;
+      aclMessage->protocol = protocol;
+      aclMessage->conversationID = conversationID;
+      aclMessage->envelope = envelope;
       
       return aclMessage;
     }
