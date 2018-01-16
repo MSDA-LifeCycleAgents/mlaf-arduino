@@ -35,7 +35,7 @@ class MessageParser{
       addTag(doc, root, "protocol", message->protocol);
       addTag(doc, root, "conversation-id", message->conversationID);
 
-      message->envelope.payloadLength = getMessageLength(doc);
+      message->envelope->payloadLength = getMessageLength(doc);
       addEnvelopeToXml(doc, message->envelope);
       
       XMLPrinter printer;
@@ -63,7 +63,7 @@ class MessageParser{
       String protocol = root->FirstChildElement("protocol")->GetText();
       String conversationID = root->FirstChildElement("conversation-id")->GetText();
 
-      Envelope envelope = xmlToEnvelope(doc.FirstChildElement("envelope"));
+      Envelope* envelope = xmlToEnvelope(doc.FirstChildElement("envelope"));
       
       auto aclMessage = new AclMessage(AGREE);
       aclMessage->sender = sender;
@@ -86,36 +86,34 @@ class MessageParser{
       return message.length();
     }
   
-    void addEnvelopeToXml(XMLDocument& doc, Envelope& envelope){
-      // to do     -> 
-      
+    void addEnvelopeToXml(XMLDocument& doc, Envelope* envelope){
       auto envelopeElement = doc.NewElement("envelope");
       auto root = doc.NewElement("params");
       root->SetAttribute("index", "1");
 
       auto from = doc.NewElement("from");
-      from->InsertEndChild(AidToXml(doc, envelope.from));
+      from->InsertEndChild(AidToXml(doc, envelope->from));
       root->InsertEndChild(from);
 
       auto to = doc.NewElement("to");
-      to->InsertEndChild(AidToXml(doc, envelope.to));
+      to->InsertEndChild(AidToXml(doc, envelope->to));
       root->InsertEndChild(to);
 
       auto intendedReceiver = doc.NewElement("intendedReceiver");
-      intendedReceiver->InsertEndChild(AidToXml(doc, envelope.intendedReceiver));
+      intendedReceiver->InsertEndChild(AidToXml(doc, envelope->intendedReceiver));
       root->InsertEndChild(intendedReceiver);
 
-      addTag(doc, root, "acl-representation", envelope.aclRepresentation);
-      addTag(doc, root, "payload-encoding", envelope.payloadEncoding);
-      addTag(doc, root, "payload-length", String(envelope.payloadLength));
-      addTag(doc, root, "date", envelope.date);
+      addTag(doc, root, "acl-representation", envelope->aclRepresentation);
+      addTag(doc, root, "payload-encoding", envelope->payloadEncoding);
+      addTag(doc, root, "payload-length", String(envelope->payloadLength));
+      addTag(doc, root, "date", envelope->date);
       
       envelopeElement->InsertEndChild(root);
       doc.InsertFirstChild(envelopeElement);
     }
   
-    Envelope xmlToEnvelope(XMLElement* element){
-      Envelope envelope;
+    Envelope* xmlToEnvelope(XMLElement* element){
+      Envelope* envelope = new Envelope();
 
       auto root = element->FirstChildElement("params");
       
@@ -129,11 +127,11 @@ class MessageParser{
       String payloadLength = root->FirstChildElement("payload-length")->GetText();
       String date = root->FirstChildElement("date")->GetText();
 
-      envelope.to = to;
-      envelope.from = from;
-      envelope.aclRepresentation = aclRepresentation;
-      envelope.payloadLength = payloadLength.toInt();
-      envelope.date = date;
+      envelope->to = to;
+      envelope->from = from;
+      envelope->aclRepresentation = aclRepresentation;
+      envelope->payloadLength = payloadLength.toInt();
+      envelope->date = date;
 
       return envelope;
     }
@@ -156,9 +154,24 @@ class MessageParser{
     AID xmlToAid(XMLElement* element){
       auto agentIdentifier = element->FirstChildElement("agent-identifier");
       String agent_name = agentIdentifier->FirstChildElement("name")->GetText();
-      auto agent_addrss = agentIdentifier->FirstChildElement("addresses");
-      String agent_addr = agent_addrss->FirstChildElement("url")->GetText();
+      auto agent_addrss = agentIdentifier->FirstChildElement("addresses");      
+      String agent_addr = "";
 
+      for(auto addr = agent_addrss->FirstChildElement("url"); addr != NULL; addr = agent_addrss->NextSiblingElement("url"))
+      {
+        String addr_text = addr->GetText();
+        Serial.println(addr_text);
+        if(addr_text.startsWith("@")){
+          agent_addr = addr_text;
+          break;
+        } 
+      }
+
+      if(agent_addr == ""){
+        int index = agent_addr.indexOf("tcp");
+        agent_addr = agent_addr.substring(index, agent_addr.length());
+      }
+      
       AID aid(agent_name, agent_addr);
       return aid;
     }

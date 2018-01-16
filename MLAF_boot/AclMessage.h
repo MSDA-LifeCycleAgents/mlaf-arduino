@@ -27,7 +27,7 @@ enum Performative{
 
 class AclMessage{
   public:
-    Envelope envelope;
+    Envelope* envelope;
     Performative performative;
     AID sender;
     AID receiver;
@@ -65,7 +65,7 @@ class AclMessage{
 
     String toString(){
       // to do: acl representatie printen
-      return "Message from " + sender.getName() + " to " + receiver.getName();
+      return "Message from " + sender.getName() + " to " + receiver.getName() + ", address: " + receiver.getAddress();
     }
 };
 

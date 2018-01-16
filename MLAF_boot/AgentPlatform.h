@@ -3,10 +3,11 @@
 
 class AgentPlatform{
   public:
-    static void blockingStart(Agent agent){
+    static void blockingStart(Agent* agent){
+      agent->setup();
       while(true){
         // to do: add logic for agent sleeping etc.
-        agent.doBehaviours();
+        agent->doBehaviours();
         delay(500);
       }
     }

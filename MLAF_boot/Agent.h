@@ -13,7 +13,7 @@ class Agent{
     std::list<std::function< void()>> behaviours;
   
   public:
-    virtual void setup(){}
+    virtual void setup() = 0;
     
     Agent(String name, int port){
       messageDispatcher.init(WiFi_ssid, WiFi_pass, port);
@@ -26,8 +26,6 @@ class Agent{
           messageDispatcher.fillQueue();
           messageDispatcher.sendCache();
         });
-      
-      setup();
     }
 
     AID getAID(){

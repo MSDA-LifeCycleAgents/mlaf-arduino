@@ -20,7 +20,7 @@ class MessageDispatcher{
    }
     
     AclMessage* receive(){
-      AclMessage* result;
+      AclMessage* result = NULL;
       for(auto message : messageQueue){
         result = message;
         messageQueue.remove(message);
@@ -30,16 +30,28 @@ class MessageDispatcher{
     }
     
     void send(AclMessage* message){
-      // should check for if message.envelope == NULL here, but is not working
-      createEnvelope(message);
+      if(message->envelope == NULL)
+        createEnvelope(message);
         
       cache.push_back(message);
     }
 
     void sendCache(){
+      std::list<AclMessage*>::iterator i = cache.begin();
+
+      while(i != cache.end()){
+        if(socket.send(*i) > 0){
+          i = cache.erase(i);
+        }else{
+          i++;
+        }
+      }
+      
       for(auto message : cache){
         if(socket.send(message) > 0){
           cache.remove(message);
+          delete message;
+          message = NULL;
         }
       }
     }
@@ -47,7 +59,6 @@ class MessageDispatcher{
     void fillQueue(){
       AclMessage* message = socket.listen();
       if(message != NULL){
-        Serial.println("Adding to message queue");
         messageQueue.push_back(message);
       }
     }
@@ -58,12 +69,12 @@ class MessageDispatcher{
     std::list<AclMessage*> cache;
 
     void createEnvelope(AclMessage* message){
-      Envelope env;
-      env.to = message->receiver;
-      env.from = message->sender;
-      env.intendedReceiver = message->receiver;
-      env.aclRepresentation = "fipa.acl.rep.string.std";
-      env.payloadEncoding = "US-ASCII";
+      Envelope* env = new Envelope();
+      env->to = message->receiver;
+      env->from = message->sender;
+      env->intendedReceiver = message->receiver;
+      env->aclRepresentation = "fipa.acl.rep.string.std";
+      env->payloadEncoding = "US-ASCII";
       message->envelope = env;
     }
 };

@@ -7,7 +7,7 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Starting up agent");
 
-  ExampleAgent agent("Agent47", 1234);
+  ExampleAgent* agent = new ExampleAgent("Agent47", 1234);
   AgentPlatform::blockingStart(agent);
 }
 

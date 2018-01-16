@@ -60,9 +60,9 @@ class TcpSocket{
             char c = client.read();
             request += c;
             if (c == '\n' && currentLineIsBlank) {
-              Serial.println("Socket received: " + request);
               MessageParser parser;
               message = parser.fromXml(request);
+              Serial.println(request);
               request = "";
               break;
             }
@@ -78,14 +78,17 @@ class TcpSocket{
     }
 
     int send(AclMessage* message){
-      client = server->available();
-      if(client){
+      if(client.connect(message->receiver.getAddress(), port)){    
         MessageParser parser;
-        int result = client.println(parser.toXml(message)) > 0;
-        delete message;
-        message = NULL;
+        Serial.println("Socket sending message: " + message->content);
+        int result = client.println(parser.toXml(message));
+        if(result > 0){
+          delete message;
+          message = NULL;
+        }
         return result;
       }
+      Serial.println("Could not connect to: " + message->receiver.getAddress());
       return -1;
     }
 

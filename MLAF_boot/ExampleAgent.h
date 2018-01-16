@@ -11,11 +11,11 @@ class ExampleAgent : public Agent{
           if(message != NULL){
             Serial.println("Received: " + message->toString());
     
-            AclMessage* response = new AclMessage(AGREE);
+            AclMessage* response = new AclMessage(REQUEST);
             response->sender = getAID();
             response->receiver = message->sender;
             response->content = "I received your message!";
-
+            
             delete message;
             message = NULL;
             
