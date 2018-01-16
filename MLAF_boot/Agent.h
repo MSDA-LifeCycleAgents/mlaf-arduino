@@ -34,11 +34,11 @@ class Agent{
       return aid;
     }
 
-    void send(AclMessage message){
+    void send(AclMessage* message){
       messageDispatcher.send(message);
     }
 
-    AclMessage& receive(){
+    AclMessage* receive(){
       return messageDispatcher.receive();
     }
 
