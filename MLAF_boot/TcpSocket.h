@@ -5,6 +5,10 @@
 #include "AclMessage.h"
 #include "MessageParser.h"
 
+extern "C" {
+  #include "user_interface.h"
+}
+
 class TcpSocket{
   private:  
     int default_port = 1234;
@@ -30,7 +34,7 @@ class TcpSocket{
       }
       
       WiFi.mode(WIFI_STA);
-
+      wifi_set_sleep_type(LIGHT_SLEEP_T);
       char ssid_arr[50];
       wifi_ssid.toCharArray(ssid_arr, 50);
 
