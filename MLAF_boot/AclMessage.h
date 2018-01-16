@@ -29,8 +29,8 @@ class AclMessage{
   public:
     Envelope* envelope;
     Performative performative;
-    AID sender;
-    AID receiver;
+    AID* sender;
+    AID* receiver;
     String content;
     String language;
     String ontology;
@@ -48,8 +48,8 @@ class AclMessage{
     AclMessage(){}
 
     bool equals(const AclMessage& other) const{
-      bool send_eq = sender.getName() == other.sender.getName() && sender.getAddress() == other.sender.getAddress();
-      bool rec_eq = receiver.getName() == other.receiver.getName() && receiver.getAddress() == other.receiver.getAddress();
+      bool send_eq = sender->getName() == other.sender->getName() && sender->getAddress() == other.sender->getAddress();
+      bool rec_eq = receiver->getName() == other.receiver->getName() && receiver->getAddress() == other.receiver->getAddress();
       bool str_eq = content == other.content && language == other.language && ontology == other.ontology && protocol == other.protocol && conversationID == other.conversationID;
       
       return send_eq && rec_eq && str_eq;
@@ -65,7 +65,15 @@ class AclMessage{
 
     String toString(){
       // to do: acl representatie printen
-      return "Message from " + sender.getName() + ", address: " + sender.getAddress() + " to " + receiver.getName() + ", address: " + receiver.getAddress();
+      return "Message from " + sender->getName() + ", address: " + sender->getAddress() + " to " + receiver->getName() + ", address: " + receiver->getAddress();
+    }
+
+    static void destroy(AclMessage* message){
+      delete message->sender;
+      delete message->receiver;
+      delete message->envelope;
+      delete message;
+      message = NULL;
     }
 };
 

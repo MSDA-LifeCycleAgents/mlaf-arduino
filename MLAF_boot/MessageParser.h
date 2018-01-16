@@ -4,11 +4,6 @@
 
 using namespace tinyxml2;
 
-/*
- * TO DO: Not handling Envelopes yet!!
- * 
- */
-
 class MessageParser{
   public:
     MessageParser(){}
@@ -35,8 +30,16 @@ class MessageParser{
       addTag(doc, root, "protocol", message->protocol);
       addTag(doc, root, "conversation-id", message->conversationID);
 
-      message->envelope->payloadLength = getMessageLength(doc);
-      addEnvelopeToXml(doc, message->envelope);
+      //message->envelope->payloadLength = 1;
+      
+      if(message->envelope != NULL){
+//        Serial.println(ESP.getFreeHeap());
+//        int messageLength = getMessageLength(doc);
+//        Serial.println("Message length: " + messageLength);
+//        Envelope* env = message->envelope;
+//        env->payloadLength = messageLength;
+        addEnvelopeToXml(doc, message->envelope);
+      }
       
       XMLPrinter printer;
       doc.Print(&printer);
@@ -52,10 +55,10 @@ class MessageParser{
       Performative performative = stringToPerformative(perfStr);
 
       auto xmlSender = root->FirstChildElement("sender");
-      AID sender = xmlToAid(xmlSender);
+      AID* sender = xmlToAid(xmlSender);
       
       auto xmlReceiver = root->FirstChildElement("receiver");
-      AID receiver = xmlToAid(xmlReceiver);
+      AID* receiver = xmlToAid(xmlReceiver);
       
       String content = root->FirstChildElement("content")->GetText();
       String language = root->FirstChildElement("language")->GetText();
@@ -118,10 +121,10 @@ class MessageParser{
       auto root = element->FirstChildElement("params");
       
       auto xmlTo = root->FirstChildElement("to");
-      AID to = xmlToAid(xmlTo);
+      AID* to = xmlToAid(xmlTo);
 
       auto xmlFrom = root->FirstChildElement("from");
-      AID from = xmlToAid(xmlFrom);
+      AID* from = xmlToAid(xmlFrom);
 
       String aclRepresentation = root->FirstChildElement("acl-representation")->GetText();
       String payloadLength = root->FirstChildElement("payload-length")->GetText();
@@ -136,13 +139,13 @@ class MessageParser{
       return envelope;
     }
   
-    XMLElement* AidToXml(XMLDocument& doc, AID aid){
+    XMLElement* AidToXml(XMLDocument& doc, AID* aid){
       auto agentIdentifier = doc.NewElement("agent-identifier");
       auto agent_name = doc.NewElement("name");
-      agent_name->SetText(aid.getName());
+      agent_name->SetText(aid->getName());
       auto agent_addrss = doc.NewElement("addresses");
       auto addr_url = doc.NewElement("url");
-      addr_url->SetText(aid.getAddress());
+      addr_url->SetText(aid->getAddress());
 
       agent_addrss->InsertEndChild(addr_url);
       agentIdentifier->InsertEndChild(agent_name);
@@ -151,13 +154,13 @@ class MessageParser{
       return agentIdentifier;
     }
 
-    AID xmlToAid(XMLElement* element){
+    AID* xmlToAid(XMLElement* element){
       auto agentIdentifier = element->FirstChildElement("agent-identifier");
       String agent_name = agentIdentifier->FirstChildElement("name")->GetText();
       auto agent_addrss = agentIdentifier->FirstChildElement("addresses");      
       String agent_addr = "";
 
-      for(auto addr = agent_addrss->FirstChildElement("url"); addr != NULL; addr = agent_addrss->NextSiblingElement("url"))
+      for(auto addr = agent_addrss->FirstChildElement("url"); addr != NULL; addr = addr->NextSiblingElement("url"))
       {
         String addr_text = addr->GetText();
         if(addr_text.startsWith("tcp")){
@@ -166,12 +169,20 @@ class MessageParser{
         } 
       }
 
-      if(agent_addr.equals("")){
-        int index = agent_addr.indexOf("@");
-        agent_addr = agent_addr.substring(index, agent_addr.length());
+      if(agent_addr.equals("") || agent_addr == NULL){
+        int index = agent_name.indexOf('@');
+        agent_addr = agent_name.substring(index + 1);
       }
 
-      AID aid(agent_name, agent_addr);
+      int portIndex = agent_addr.lastIndexOf(':');
+      String portStr = agent_addr.substring(portIndex + 1);
+      agent_addr.remove(portIndex);
+      if(agent_addr.startsWith("tcp://")){
+        agent_addr.remove(0, 6);
+      }
+
+      AID* aid = new AID(agent_name, agent_addr);
+      aid->setPort(portStr.toInt());
       return aid;
     }
 

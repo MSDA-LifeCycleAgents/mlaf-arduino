@@ -3,14 +3,18 @@
 
 class Envelope{
   public:
-    AID to;
-    AID from;
-    AID intendedReceiver;
+    AID* to;
+    AID* from;
+    AID* intendedReceiver;
     String aclRepresentation;
     String date;
     String payloadEncoding;
-    int payloadLength;
+    long payloadLength;
 
     Envelope(){}
+
+    String toString(){
+      return "Message from " + from->getName() + ", address: " + from->getAddress() + " to " + to->getName() + ", address: " + to->getAddress();
+    }
 };
 

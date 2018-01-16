@@ -5,10 +5,6 @@
 #include "AclMessage.h"
 #include "MessageParser.h"
 
-extern "C" {
-  #include "user_interface.h"
-}
-
 class TcpSocket{
   private:  
     int default_port = 1234;
@@ -34,7 +30,7 @@ class TcpSocket{
       }
       
       WiFi.mode(WIFI_STA);
-      wifi_set_sleep_type(LIGHT_SLEEP_T);
+
       char ssid_arr[50];
       wifi_ssid.toCharArray(ssid_arr, 50);
 
@@ -82,17 +78,18 @@ class TcpSocket{
     }
 
     int send(AclMessage* message){
-      if(client.connect(message->receiver.getAddress(), port)){    
+      Serial.println("Receiver IP: " + message->receiver->getAddress());
+      if(client.connect(message->receiver->getAddress(), message->receiver->getPort())){    
         MessageParser parser;
         Serial.println("Socket sending message: " + message->content);
-        int result = client.println(parser.toXml(message));
+        String parsedMessage = parser.toXml(message);
+        int result = client.println(parsedMessage);
         if(result > 0){
-          delete message;
-          message = NULL;
+          AclMessage::destroy(message);
         }
         return result;
       }
-      Serial.println("Could not connect to: " + message->receiver.getAddress());
+      Serial.println("Could not connect to: " + message->receiver->getAddress());
       return -1;
     }
 

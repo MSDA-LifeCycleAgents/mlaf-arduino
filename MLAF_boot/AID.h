@@ -4,6 +4,7 @@ class AID{
   private:
     String name;
     String address;
+    int port;
   
   public:
     AID(String _name, String _address){
@@ -31,6 +32,14 @@ class AID{
 
     String setName(String _name){
       name = _name;
+    }
+
+    int getPort() const{
+      return port;
+    }
+
+    void setPort(int _port){
+      port = _port;
     }
 };
 

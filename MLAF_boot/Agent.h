@@ -9,7 +9,7 @@
 class Agent{
   private:
     MessageDispatcher messageDispatcher;
-    AID aid;
+    AID* aid;
     std::list<std::function< void()>> behaviours;
   
   public:
@@ -18,17 +18,17 @@ class Agent{
     Agent(String name, int port){
       messageDispatcher.init(WiFi_ssid, WiFi_pass, port);
 
-      AID _aid(name, messageDispatcher.getIpAddress());
-      aid = _aid;
+      aid = new AID(name, messageDispatcher.getIpAddress());
+      aid->setPort(port);
 
-      messageDispatcher.advertise(aid.getName(), mdns_description, "20171031-21:57:38:513000");
+      messageDispatcher.advertise(aid->getName(), mdns_description, "20171031-21:57:38:513000");
       addBehaviour([this]{
           messageDispatcher.fillQueue();
           messageDispatcher.sendCache();
         });
     }
 
-    AID getAID(){
+    AID* getAID(){
       return aid;
     }
 
