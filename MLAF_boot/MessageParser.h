@@ -160,18 +160,17 @@ class MessageParser{
       for(auto addr = agent_addrss->FirstChildElement("url"); addr != NULL; addr = agent_addrss->NextSiblingElement("url"))
       {
         String addr_text = addr->GetText();
-        Serial.println(addr_text);
-        if(addr_text.startsWith("@")){
+        if(addr_text.startsWith("tcp")){
           agent_addr = addr_text;
           break;
         } 
       }
 
-      if(agent_addr == ""){
-        int index = agent_addr.indexOf("tcp");
+      if(agent_addr.equals("")){
+        int index = agent_addr.indexOf("@");
         agent_addr = agent_addr.substring(index, agent_addr.length());
       }
-      
+
       AID aid(agent_name, agent_addr);
       return aid;
     }

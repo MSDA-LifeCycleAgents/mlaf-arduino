@@ -65,7 +65,7 @@ class AclMessage{
 
     String toString(){
       // to do: acl representatie printen
-      return "Message from " + sender.getName() + " to " + receiver.getName() + ", address: " + receiver.getAddress();
+      return "Message from " + sender.getName() + ", address: " + sender.getAddress() + " to " + receiver.getName() + ", address: " + receiver.getAddress();
     }
 };
 
