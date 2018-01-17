@@ -39,10 +39,16 @@ class AclMessage{
 
     AclMessage(Performative _performative){
       performative = _performative;
+      sender = NULL;
+      receiver = NULL;
+      envelope = NULL;
     }
 
     AclMessage(int _performative){
       performative = static_cast<Performative>(_performative);
+      sender = NULL;
+      receiver = NULL;
+      envelope = NULL;
     }
 
     AclMessage(){}
@@ -64,8 +70,14 @@ class AclMessage{
     }
 
     String toString(){
-      // to do: acl representatie printen
       return "Message from " + sender->getName() + ", address: " + sender->getAddress() + " to " + receiver->getName() + ", address: " + receiver->getAddress();
+    }
+
+    AclMessage* createReply(Performative perf){
+      AclMessage* response = new AclMessage(perf);
+      response->receiver = new AID(sender->getName(), sender->getAddress());
+      response->receiver->setPort(sender->getPort());
+      return response;
     }
 
     static void destroy(AclMessage* message){

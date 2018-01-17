@@ -6,19 +6,21 @@ class ExampleAgent : public Agent{
 
     void setup(){
       addBehaviour([this]{
+          // receive the incoming message
           AclMessage* message = receive();
           
           if(message != NULL){
             Serial.println("Received: " + message->toString());
-            
-            AclMessage* response = new AclMessage(REQUEST);
-            response->sender = getAID();
-            response->receiver = message->sender;
+
+            // you can either create a new message or create a reply
+            AclMessage* response = message->createReply(INFORM);
             response->content = "I received your message!";
             
-            Serial.println("Sending: " + response->toString());
+            // send the message 
+            // (be carefull with printing the sender, it will be set later)
             send(response);
 
+            // don't forget to collect your garbage
             AclMessage::destroy(message);
           }
         });

@@ -33,6 +33,9 @@ class Agent{
     }
 
     void send(AclMessage* message){
+      if(message->sender == NULL)
+        message->sender = getAID();
+        
       messageDispatcher.send(message);
     }
 

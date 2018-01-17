@@ -33,11 +33,11 @@ class MessageParser{
       //message->envelope->payloadLength = 1;
       
       if(message->envelope != NULL){
-//        Serial.println(ESP.getFreeHeap());
-//        int messageLength = getMessageLength(doc);
-//        Serial.println("Message length: " + messageLength);
-//        Envelope* env = message->envelope;
-//        env->payloadLength = messageLength;
+        //Serial.println(ESP.getFreeHeap());
+        int messageLength = getMessageLength(doc);
+        //Serial.println("Message length: " + messageLength);
+        Envelope* env = message->envelope;
+        env->payloadLength = messageLength;
         addEnvelopeToXml(doc, message->envelope);
       }
       

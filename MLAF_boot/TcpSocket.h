@@ -78,18 +78,17 @@ class TcpSocket{
     }
 
     int send(AclMessage* message){
-      Serial.println("Receiver IP: " + message->receiver->getAddress());
       if(client.connect(message->receiver->getAddress(), message->receiver->getPort())){    
         MessageParser parser;
-        Serial.println("Socket sending message: " + message->content);
         String parsedMessage = parser.toXml(message);
+        Serial.println("Socket sending message: " + parsedMessage);
         int result = client.println(parsedMessage);
         if(result > 0){
           AclMessage::destroy(message);
         }
         return result;
       }
-      Serial.println("Could not connect to: " + message->receiver->getAddress());
+      Serial.println("Could not connect to: " + message->receiver->getAddress() + ":" + String(message->receiver->getPort()));
       return -1;
     }
 

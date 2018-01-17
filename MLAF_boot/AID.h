@@ -10,10 +10,12 @@ class AID{
     AID(String _name, String _address){
       name = _name;
       address = _address;
+      port = -1;
     }
 
     AID(String _name){
       name = _name;
+      port = -1;
     }
 
     AID(){}
