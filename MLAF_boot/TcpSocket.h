@@ -76,20 +76,16 @@ class TcpSocket{
       }
       return message;
     }
-
+ 
     int send(AclMessage* message){
-      if(client.connect(message->receiver->getAddress(), message->receiver->getPort())){    
+    
         MessageParser parser;
         String parsedMessage = parser.toXml(message);
         Serial.println("Socket sending message: " + parsedMessage);
-        int result = client.println(parsedMessage);
-        if(result > 0){
-          AclMessage::destroy(message);
-        }
-        return result;
-      }
-      Serial.println("Could not connect to: " + message->receiver->getAddress() + ":" + String(message->receiver->getPort()));
-      return -1;
+
+
+      
+
     }
 
     void advertise(String name, String description, String timestamp){
@@ -111,4 +107,5 @@ class TcpSocket{
     }
   
 };
+
 

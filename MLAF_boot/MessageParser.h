@@ -125,7 +125,7 @@ class MessageParser{
 
       auto xmlFrom = root->FirstChildElement("from");
       AID* from = xmlToAid(xmlFrom);
-
+ 
       String aclRepresentation = root->FirstChildElement("acl-representation")->GetText();
       String payloadLength = root->FirstChildElement("payload-length")->GetText();
       String date = root->FirstChildElement("date")->GetText();
@@ -229,4 +229,5 @@ class MessageParser{
   "PROXY",
   "PROPAGATE"};
 };
+
 

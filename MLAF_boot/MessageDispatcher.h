@@ -68,7 +68,7 @@ class MessageDispatcher{
     std::list<AclMessage*> messageQueue;
     std::list<AclMessage*> cache;
 
-    void createEnvelope(AclMessage* message){
+    void createEnvelope(AclMessage* message){ 
       Envelope* env = new Envelope();
       env->to = message->receiver;
       env->from = message->sender;
@@ -78,3 +78,4 @@ class MessageDispatcher{
       message->envelope = env;
     }
 };
+

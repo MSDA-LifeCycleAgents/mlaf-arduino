@@ -25,7 +25,7 @@ class Agent{
       addBehaviour([this]{
           messageDispatcher.fillQueue();
           messageDispatcher.sendCache();
-        });
+        }); 
     }
 
     AID* getAID(){
@@ -53,4 +53,5 @@ class Agent{
       behaviours.push_back(behaviour);
     }
 };
+
 

@@ -2,7 +2,7 @@
 #include "Agent.h"
 
 class AgentPlatform{
-  public:
+  public: 
     static void blockingStart(Agent* agent){
       agent->setup();
       while(true){
@@ -12,4 +12,5 @@ class AgentPlatform{
       }
     }
 };
+
 

@@ -60,7 +60,7 @@ class AclMessage{
       
       return send_eq && rec_eq && str_eq;
     }
-
+ 
     bool operator==( const AclMessage& other) const{
       return this->equals(other);
     }
@@ -88,4 +88,5 @@ class AclMessage{
       message = NULL;
     }
 };
+
 

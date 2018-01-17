@@ -7,10 +7,9 @@ class ExampleAgent : public Agent{
     void setup(){
       addBehaviour([this]{
           // receive the incoming message
-          AclMessage* message = receive();
+          AclMessage* message; 
           
-          if(message != NULL){
-            Serial.println("Received: " + message->toString());
+
 
             // you can either create a new message or create a reply
             AclMessage* response = message->createReply(INFORM);
@@ -21,9 +20,10 @@ class ExampleAgent : public Agent{
             send(response);
 
             // don't forget to collect your garbage
-            AclMessage::destroy(message);
-          }
+            //AclMessage::destroy(message);
+          
         });
     }
 };
+
 
