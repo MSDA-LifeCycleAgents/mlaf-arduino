@@ -92,6 +92,7 @@ class AclMessage{
       delete message->sender;
       delete message->receiver;
       delete message->envelope;
+      delete message->replyTo;
       delete message;
       message = NULL;
     }
