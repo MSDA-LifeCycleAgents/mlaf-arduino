@@ -7,57 +7,30 @@
 
 using namespace tinyxml2;
 
-class SensorAgent : public Agent
-{
-public:
+class SensorAgent : public Agent{
+  private:
+    std::list<Sensor*> _sensors;
+    const char* _name;
+    const char* _identifier;
+    const char* _topic;
+    bool _toDecisionAgent = true;
+    NTPClient &ntp;
+  public:
     /**
      * Constructs a sensor agent
      * 
      * \param name the name of the sensor agent
      * \param sensors a list of the sensors associated with the agent
     */
-    SensorAgent(const char* name, const char* identifier, const char* topic, bool toDA, std::list<Sensor*> sensors, NTPClient &ntp, int port)
-        : Agent(name, port), _name{name}, _identifier{identifier}, _topic{topic}, _toDecisionAgent{toDA}, _sensors{sensors}, ntp(ntp)
-    // TODO: replace options with struct?
-    {
-    }
-
-    // Inherited functions
-    void setup(){
-        addBehaviour([this] {    
-            AclMessage* message = receive();
-
-            if (message) {
-                #ifdef DEBUG
-                Serial.println("Received: " + message->toString());
-                #endif
-
-                AclMessage* response = message->createReply(INFORM);
-                response->content = "I received your message!";
-
-                send(response);
-                AclMessage::destroy(message);
-            }
-        });
-        // TODO: create different types of behaviour?
-        addBehaviour([this] {
-            static bool sent = false;
-            if (sent) {
-                auto msg = new AclMessage(INFORM);
-                msg->receiver = new AID("DummyAgent", getAID()->getAddress());
-                msg->receiver->setPort(getAID()->getPort());
-                msg->content = String(createInstructionSet());
-                send(msg);
-                sent = true;
-            }
-        });
-
-        addBehaviour([this] {
-            ntp.update();
+    SensorAgent(const char* name, NTPClient &ntp, int port)
+        : Agent(name, port), _name{name}, ntp(ntp)
+    {  
+      addBehaviour([this] {
+            getNTP().update();
             
             std::list<Sensor*> queue;
             for (auto& sensor : _sensors) {
-                if (sensor->needsUpdate(ntp.getEpochTime())) {
+                if (sensor->needsUpdate(getNTP().getEpochTime())) {
                     queue.push_back(sensor);
                 }
             }
@@ -69,6 +42,24 @@ public:
                 send(msg);
             }
         });
+    }
+
+    NTPClient& getNTP(){
+      return ntp;
+    }
+
+    void setIdentifier(const char* id){
+      _identifier = id;
+    }
+
+    void setTopic(const char* topicName){
+      _topic = topicName;
+      if(_topic)
+        _toDecisionAgent = false;
+    }
+
+    void addSensor(Sensor* sensor){
+      _sensors.push_back(sensor);
     }
 
     // Functions
@@ -181,12 +172,4 @@ public:
         doc.Print(&printer);
         return printer.CStr();
     }
-
-private:
-    std::list<Sensor*> _sensors;
-    const char* _name;
-    const char* _identifier;
-    const char* _topic;
-    const bool _toDecisionAgent;
-    NTPClient &ntp;
 };
