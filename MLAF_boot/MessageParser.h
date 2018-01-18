@@ -13,7 +13,9 @@ class MessageParser{
       
       auto root = doc.NewElement("fipa-message");
       String perf = performativeToString(message->performative);
-      root->SetAttribute("communicative-act", perf);
+      char _perf[sizeof(perf) + 1];
+      perf.toCharArray(_perf, sizeof(_perf));
+      root->SetAttribute("communicative-act", _perf);
       doc.InsertEndChild(root);
       
       auto sender = doc.NewElement("sender");
@@ -23,7 +25,7 @@ class MessageParser{
       auto receiver = doc.NewElement("receiver");
       receiver->InsertEndChild(AidToXml(doc, message->receiver));
       root->InsertEndChild(receiver);
-      
+
       addTag(doc, root, "content", message->content);
       addTag(doc, root, "language", message->language);
       addTag(doc, root, "ontology", message->ontology);
@@ -141,11 +143,19 @@ class MessageParser{
   
     XMLElement* AidToXml(XMLDocument& doc, AID* aid){
       auto agentIdentifier = doc.NewElement("agent-identifier");
+      
       auto agent_name = doc.NewElement("name");
-      agent_name->SetText(aid->getName());
+      String name = aid->getName();
+      char _name[name.length() + 1];
+      name.toCharArray(_name, sizeof(_name));
+      agent_name->SetText(_name);
+      
       auto agent_addrss = doc.NewElement("addresses");
       auto addr_url = doc.NewElement("url");
-      addr_url->SetText(aid->getAddress());
+      String url = "tcp://" + aid->getAddress() + ":" + aid->getPort();
+      char _url[url.length() + 1];
+      url.toCharArray(_url, sizeof(_url));
+      addr_url->SetText(_url);
 
       agent_addrss->InsertEndChild(addr_url);
       agentIdentifier->InsertEndChild(agent_name);
@@ -188,7 +198,9 @@ class MessageParser{
 
     void addTag(XMLDocument& doc, XMLElement* element, const char* tagName, String value){
       auto tag = doc.NewElement(tagName);
-      tag->SetText(value);
+      char _value[value.length() + 1];
+      value.toCharArray(_value, sizeof(_value));
+      tag->SetText(_value);
       element->InsertEndChild(tag);
     }
     
