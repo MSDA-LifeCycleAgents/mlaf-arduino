@@ -78,7 +78,8 @@ class TcpSocket{
     }
 
     int send(AclMessage* message){
-      if(client.connect(message->receiver->getAddress(), message->receiver->getPort())){    
+      if(client.connect(message->receiver->getAddress(), message->receiver->getPort())){   
+        Serial.println("Starting message parser"); 
         MessageParser parser;
         String parsedMessage = parser.toXml(message);
         Serial.println("Socket sending message: " + parsedMessage);

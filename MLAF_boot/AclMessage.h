@@ -31,6 +31,7 @@ class AclMessage{
     Performative performative;
     AID* sender;
     AID* receiver;
+    AID* replyTo;
     String content;
     String language;
     String ontology;
@@ -42,6 +43,7 @@ class AclMessage{
       sender = NULL;
       receiver = NULL;
       envelope = NULL;
+      replyTo = NULL;
     }
 
     AclMessage(int _performative){
@@ -49,6 +51,7 @@ class AclMessage{
       sender = NULL;
       receiver = NULL;
       envelope = NULL;
+      replyTo = NULL;
     }
 
     AclMessage(){}
@@ -75,8 +78,13 @@ class AclMessage{
 
     AclMessage* createReply(Performative perf){
       AclMessage* response = new AclMessage(perf);
-      response->receiver = new AID(sender->getName(), sender->getAddress());
-      response->receiver->setPort(sender->getPort());
+      if(replyTo != NULL){
+        response->receiver = new AID(replyTo->getName(), replyTo->getAddress());
+        response->receiver->setPort(replyTo->getPort());
+      }else{
+        response->receiver = new AID(sender->getName(), sender->getAddress());
+        response->receiver->setPort(sender->getPort());
+      }
       return response;
     }
 

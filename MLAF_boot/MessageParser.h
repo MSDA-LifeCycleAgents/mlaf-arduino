@@ -26,18 +26,20 @@ class MessageParser{
       receiver->InsertEndChild(AidToXml(doc, message->receiver));
       root->InsertEndChild(receiver);
 
+      if(message->replyTo != NULL){
+        auto replyTo = doc.NewElement("reply-to");
+        replyTo->InsertEndChild(AidToXml(doc, message->replyTo));
+        replyTo->InsertEndChild(replyTo);
+      }
+
       addTag(doc, root, "content", message->content);
       addTag(doc, root, "language", message->language);
       addTag(doc, root, "ontology", message->ontology);
       addTag(doc, root, "protocol", message->protocol);
       addTag(doc, root, "conversation-id", message->conversationID);
-
-      //message->envelope->payloadLength = 1;
       
       if(message->envelope != NULL){
-        //Serial.println(ESP.getFreeHeap());
         int messageLength = getMessageLength(doc);
-        //Serial.println("Message length: " + messageLength);
         Envelope* env = message->envelope;
         env->payloadLength = messageLength;
         addEnvelopeToXml(doc, message->envelope);
@@ -61,6 +63,9 @@ class MessageParser{
       
       auto xmlReceiver = root->FirstChildElement("receiver");
       AID* receiver = xmlToAid(xmlReceiver);
+
+      auto xmlReplyTo = root->FirstChildElement("reply-to");
+      AID* replyTo = xmlToAid(xmlReplyTo);
       
       String content = root->FirstChildElement("content")->GetText();
       String language = root->FirstChildElement("language")->GetText();
@@ -73,6 +78,7 @@ class MessageParser{
       auto aclMessage = new AclMessage(AGREE);
       aclMessage->sender = sender;
       aclMessage->receiver = receiver;
+      aclMessage->replyTo = replyTo;
       aclMessage->content = content;
       aclMessage->language = language;
       aclMessage->ontology = ontology;
