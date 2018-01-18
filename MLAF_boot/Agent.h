@@ -39,8 +39,8 @@ class Agent{
       messageDispatcher.send(message);
     }
 
-    AclMessage* receive(){
-      return messageDispatcher.receive();
+    AclMessage* receive(bool pop = true){
+      return messageDispatcher.receive(pop);
     }
 
     void doBehaviours(){

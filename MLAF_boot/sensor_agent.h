@@ -9,6 +9,7 @@ using namespace tinyxml2;
 
 class SensorAgent : public Agent{
   private:
+    AID* decisionAgent;
     std::list<Sensor*> _sensors;
     const char* _name;
     const char* _identifier;
@@ -25,6 +26,8 @@ class SensorAgent : public Agent{
     SensorAgent(const char* name, NTPClient &ntp, int port)
         : Agent(name, port), _name{name}, ntp(ntp)
     {  
+      decisionAgent = NULL;
+      
       addBehaviour([this] {
             getNTP().update();
             
@@ -34,13 +37,42 @@ class SensorAgent : public Agent{
                     queue.push_back(sensor);
                 }
             }
-            if (!queue.empty()) {
+            if (decisionAgent != NULL) {
+                if(queue.empty())
+                  return;
+                  
                 auto msg = new AclMessage(INFORM);
-                msg->receiver = new AID("DummyAgent", getAID()->getAddress());
-                msg->receiver->setPort(getAID()->getPort());
+                msg->receiver = decisionAgent;
                 msg->content = String(toXML(queue));
                 send(msg);
+            }else{
+              // TODO: cache values until decision agent exists
             }
+        });
+
+        // handshake behaviour
+        addBehaviour([this] {
+          if(decisionAgent != NULL)
+            return;
+            
+          AclMessage* message = receive(false);
+          if(message == NULL)
+            return;
+          
+          // send instructions behaviour
+          if(message->performative == REQUEST && message->content.equals("request-instructions")){
+            AclMessage* response = message->createReply(SUBSCRIBE);
+            response->content = createInstructionSet();
+            send(response);
+          }
+
+          // set decision agent AID behaviour
+          if(message->performative == CONFIRM){
+            decisionAgent = new AID(message->sender->getName(), message->sender->getAddress());
+            decisionAgent->setPort(message->sender->getPort());
+          }
+          
+          AclMessage::destroy(message);
         });
     }
 

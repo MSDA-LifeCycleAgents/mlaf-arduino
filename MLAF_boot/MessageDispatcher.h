@@ -19,11 +19,12 @@ class MessageDispatcher{
       socket.advertise(name, description, timestamp);
    }
     
-    AclMessage* receive(){
+    AclMessage* receive(bool pop){
       AclMessage* result = NULL;
       for(auto message : messageQueue){
         result = message;
-        messageQueue.remove(message);
+        if(pop)
+          messageQueue.remove(message);
         break;
       }
       return result;
