@@ -71,8 +71,6 @@ class SensorAgent : public Agent{
             decisionAgent = new AID(message->sender->getName(), message->sender->getAddress());
             decisionAgent->setPort(message->sender->getPort());
           }
-          
-          AclMessage::destroy(message);
         });
     }
 
