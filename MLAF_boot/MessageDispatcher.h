@@ -31,7 +31,7 @@ class MessageDispatcher{
     }
     
     void send(AclMessage* message){
-      if(message->envelope == NULL)
+      if(!message->envelope)
         createEnvelope(message);
         
       cache.push_back(message);

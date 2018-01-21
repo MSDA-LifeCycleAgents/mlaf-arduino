@@ -1,7 +1,6 @@
 #include <NTPClient.h>
 #include <WiFiUdp.h>
 
-#include "ExampleAgent.h"
 #include "AgentPlatform.h"
 #include "Configuration.h"
 #include "ExampleSensorAgent.h"

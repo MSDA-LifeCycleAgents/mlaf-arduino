@@ -43,5 +43,11 @@ class AID{
     void setPort(int _port){
       port = _port;
     }
+
+    static AID* copy(AID* aid){
+      AID* copy = new AID(aid->getName(), aid->getAddress());
+      copy->setPort(aid->getPort());
+      return copy;
+    }
 };
 

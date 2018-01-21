@@ -55,18 +55,30 @@ class SensorAgent : public Agent{
           if(decisionAgent != NULL)
             return;
             
-          AclMessage* message = receive(false);
+          AclMessage* message = receive();
           if(message == NULL)
             return;
           
-          // send instructions behaviour
-          if(message->performative == REQUEST && message->content.equals("request-instructions")){
+          // send instructions
+          if(message->performative == REQUEST){
             AclMessage* response = message->createReply(SUBSCRIBE);
             response->content = createInstructionSet();
+            
+            Envelope* env = new Envelope();
+            env->to = AID::copy(message->envelope->from);
+            env->from = response->sender;
+            env->intendedReceiver = response->receiver;
+            env->aclRepresentation = "fipa.acl.rep.string.std";
+            env->payloadEncoding = "US-ASCII";
+            response->envelope = env;
+            
+            Serial.println("Sending instructionset");
             send(response);
+
+            AclMessage::destroy(message);
           }
 
-          // set decision agent AID behaviour
+          // set decision agent AID
           if(message->performative == CONFIRM){
             decisionAgent = new AID(message->sender->getName(), message->sender->getAddress());
             decisionAgent->setPort(message->sender->getPort());

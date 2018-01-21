@@ -18,19 +18,19 @@ class ExampleSensorAgent : public SensorAgent{
       setIdentifier("someidentifier");
       setTopic("sometopic");
       
-      addBehaviour([this] {    
-          AclMessage* message = receive();
-
-          if (message) {
-              Serial.println("Received: " + message->toString());
-
-              AclMessage* response = message->createReply(INFORM);
-              response->content = "I received your message!";
-
-              send(response);
-              AclMessage::destroy(message);
-            }
-        });
+//      addBehaviour([this] {    
+//          AclMessage* message = receive();
+//
+//          if (message) {
+//              Serial.println("Received: " + message->toString());
+//
+//              AclMessage* response = message->createReply(INFORM);
+//              response->content = "I received your message!";
+//
+//              send(response);
+//              AclMessage::destroy(message);
+//            }
+//        });
     }
 };
 

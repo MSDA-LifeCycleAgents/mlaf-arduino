@@ -62,7 +62,7 @@ class TcpSocket{
             if (c == '\n' && currentLineIsBlank) {
               MessageParser parser;
               message = parser.fromXml(request);
-              Serial.println(request);
+              Serial.println("Received: " + request);
               request = "";
               break;
             }
@@ -78,7 +78,7 @@ class TcpSocket{
     }
 
     int send(AclMessage* message){
-      if(client.connect(message->receiver->getAddress(), message->receiver->getPort())){   
+      if(client.connect(message->envelope->to->getAddress(), message->envelope->to->getPort())){   
         Serial.println("Starting message parser"); 
         MessageParser parser;
         String parsedMessage = parser.toXml(message);

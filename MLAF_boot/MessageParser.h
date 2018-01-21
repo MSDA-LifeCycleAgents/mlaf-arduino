@@ -10,13 +10,13 @@ class MessageParser{
     
     String toXml(AclMessage* message){
       XMLDocument doc;
+      doc.InsertEndChild(doc.NewDeclaration());
       
       auto root = doc.NewElement("fipa-message");
       String perf = performativeToString(message->performative);
       char _perf[sizeof(perf) + 1];
       perf.toCharArray(_perf, sizeof(_perf));
       root->SetAttribute("communicative-act", _perf);
-      doc.InsertEndChild(root);
       
       auto sender = doc.NewElement("sender");
       sender->InsertEndChild(AidToXml(doc, message->sender));
@@ -44,10 +44,15 @@ class MessageParser{
         env->payloadLength = messageLength;
         addEnvelopeToXml(doc, message->envelope);
       }
+
+      doc.InsertEndChild(root);
       
       XMLPrinter printer;
       doc.Print(&printer);
-      return printer.CStr();
+      String result = printer.CStr();
+      result.replace("&lt;", "<");
+      result.replace("&gt;", ">");
+      return result;
     }
 
     AclMessage* fromXml(String message){
@@ -57,7 +62,7 @@ class MessageParser{
       auto root = doc.FirstChildElement("fipa-message");
       String perfStr = root->Attribute("communicative-act");
       Performative performative = stringToPerformative(perfStr);
-
+      
       auto xmlSender = root->FirstChildElement("sender");
       AID* sender = xmlToAid(xmlSender);
       
@@ -65,17 +70,26 @@ class MessageParser{
       AID* receiver = xmlToAid(xmlReceiver);
 
       auto xmlReplyTo = root->FirstChildElement("reply-to");
-      AID* replyTo = xmlToAid(xmlReplyTo);
-      
-      String content = root->FirstChildElement("content")->GetText();
-      String language = root->FirstChildElement("language")->GetText();
-      String ontology = root->FirstChildElement("ontology")->GetText();
-      String protocol = root->FirstChildElement("protocol")->GetText();
-      String conversationID = root->FirstChildElement("conversation-id")->GetText();
+      AID* replyTo = xmlReplyTo ? xmlToAid(xmlReplyTo) : NULL;
+
+      auto xmlContent = root->FirstChildElement("content");
+      String content = xmlContent ? xmlContent->GetText() : NULL;
+
+      auto xmlLanguage = root->FirstChildElement("language");
+      String language = xmlLanguage ? xmlLanguage->GetText() : NULL;
+
+      auto xmlOntology = root->FirstChildElement("ontology");
+      String ontology = xmlOntology ? xmlOntology->GetText() : NULL;
+
+      auto xmlProtocol = root->FirstChildElement("protocol");
+      String protocol = xmlProtocol ? xmlProtocol->GetText() : NULL;
+
+      auto xmlConversationID = root->FirstChildElement("conversation-id");
+      String conversationID = xmlConversationID ? xmlConversationID->GetText() : NULL;
 
       Envelope* envelope = xmlToEnvelope(doc.FirstChildElement("envelope"));
       
-      auto aclMessage = new AclMessage(AGREE);
+      auto aclMessage = new AclMessage(performative);
       aclMessage->sender = sender;
       aclMessage->receiver = receiver;
       aclMessage->replyTo = replyTo;
@@ -101,7 +115,7 @@ class MessageParser{
       auto envelopeElement = doc.NewElement("envelope");
       auto root = doc.NewElement("params");
       root->SetAttribute("index", "1");
-
+ 
       auto from = doc.NewElement("from");
       from->InsertEndChild(AidToXml(doc, envelope->from));
       root->InsertEndChild(from);
@@ -110,8 +124,10 @@ class MessageParser{
       to->InsertEndChild(AidToXml(doc, envelope->to));
       root->InsertEndChild(to);
 
-      auto intendedReceiver = doc.NewElement("intendedReceiver");
-      intendedReceiver->InsertEndChild(AidToXml(doc, envelope->intendedReceiver));
+      auto intendedReceiver = doc.NewElement("intended-receiver");
+      if(envelope->intendedReceiver)
+        intendedReceiver->InsertEndChild(AidToXml(doc, envelope->intendedReceiver));
+        
       root->InsertEndChild(intendedReceiver);
 
       addTag(doc, root, "acl-representation", envelope->aclRepresentation);
@@ -120,14 +136,14 @@ class MessageParser{
       addTag(doc, root, "date", envelope->date);
       
       envelopeElement->InsertEndChild(root);
-      doc.InsertFirstChild(envelopeElement);
+      doc.InsertEndChild(envelopeElement);
     }
   
     Envelope* xmlToEnvelope(XMLElement* element){
       Envelope* envelope = new Envelope();
 
       auto root = element->FirstChildElement("params");
-      
+
       auto xmlTo = root->FirstChildElement("to");
       AID* to = xmlToAid(xmlTo);
 
@@ -152,6 +168,7 @@ class MessageParser{
       
       auto agent_name = doc.NewElement("name");
       String name = aid->getName();
+      Serial.println("AID name: " + name);
       char _name[name.length() + 1];
       name.toCharArray(_name, sizeof(_name));
       agent_name->SetText(_name);
@@ -218,7 +235,7 @@ class MessageParser{
       Performative result;
       for(int i = 0; i < sizeof(performatives); i++){
         performative.toUpperCase();
-        if(performative == performatives[i]){
+        if(performative.equals(performatives[i])){
           result = static_cast<Performative>(i);
           break;
         }
