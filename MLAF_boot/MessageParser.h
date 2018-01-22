@@ -133,7 +133,9 @@ class MessageParser{
       addTag(doc, root, "acl-representation", envelope->aclRepresentation);
       addTag(doc, root, "payload-encoding", envelope->payloadEncoding);
       addTag(doc, root, "payload-length", String(envelope->payloadLength));
-      addTag(doc, root, "date", envelope->date);
+
+      if(envelope->date)
+        addTag(doc, root, "date", envelope->date);
       
       envelopeElement->InsertEndChild(root);
       doc.InsertEndChild(envelopeElement);
