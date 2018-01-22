@@ -1,5 +1,23 @@
 # mlaf-arduino
 
+## PlatformIO
+This project uses [PlatformIO](http://platformio.org) for dependency management and builds. Be sure to install the plugin for your favourite editor.
+
+## Cloning
+This project uses git submodules. To clone the project you should:
+
+```
+$ git clone --recurse-submodules <url>
+```
+
+
+To initialize the submodule system after cloning without `--recurse-submodules`, you should: 
+```
+$ git submodule init
+$ git submodule update
+```
+
+
 ## Third-party libraries
 This project uses the TinyXML-2 library by Lee Thomason. This library is provide under the following license:
 
