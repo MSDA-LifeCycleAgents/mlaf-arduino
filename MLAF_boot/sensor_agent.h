@@ -67,7 +67,7 @@ class SensorAgent : public Agent{
           if(decisionAgent != NULL)
             return;
             
-          AclMessage* message = receive();
+          AclMessage* message = receive(MessageTemplate::matchPerformativeAndOntology(REQUEST, "sensor-agent-register", STARTS_WITH));
           if(message == NULL)
             return;
           
@@ -75,6 +75,7 @@ class SensorAgent : public Agent{
           if(message->performative == REQUEST){
             AclMessage* response = message->createReply(SUBSCRIBE);
             response->content = createInstructionSet();
+            response->ontology = message->ontology;
             
             Envelope* env = new Envelope();
             env->to = AID::copy(message->envelope->from);

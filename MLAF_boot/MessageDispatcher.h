@@ -2,6 +2,7 @@
 #include "AclMessage.h"
 #include "Envelope.h"
 #include "TcpSocket.h"
+#include "MessageTemplate.h"
 
 class MessageDispatcher{
   public:
@@ -19,13 +20,14 @@ class MessageDispatcher{
       socket.advertise(name, description, timestamp);
    }
     
-    AclMessage* receive(bool pop){
+    AclMessage* receive(MessageTemplate* _template){
       AclMessage* result = NULL;
       for(auto message : messageQueue){
-        result = message;
-        if(pop)
+        if(_template == NULL || _template->match(message)){
+          result = message;
           messageQueue.remove(message);
-        break;
+          break;
+        }
       }
       return result;
     }
