@@ -53,12 +53,12 @@ class SensorAgent : public Agent{
             if (decisionAgent != NULL) {
                 if(cache.empty())
                   return;
-                for(int i = 0; i < cache.size(); i++){
-                  msg = cache.front();
-                  cache.pop_front();
-                  send(msg);  
+                for (auto it = cache.cbegin(); it != cache.cend(); ++it){
+                  msg = *it;
+                  send(msg);
+                    
                 }
-              
+              cache.clear();
             }
         });
 
