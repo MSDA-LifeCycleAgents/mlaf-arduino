@@ -168,7 +168,7 @@ class MessageParser{
       
       auto agent_name = doc.NewElement("name");
       String name = aid->getName();
-      Serial.println("AID name: " + name);
+
       char _name[name.length() + 1];
       name.toCharArray(_name, sizeof(_name));
       agent_name->SetText(_name);
@@ -236,7 +236,7 @@ class MessageParser{
       for(int i = 0; i < sizeof(performatives); i++){
         performative.toUpperCase();
         if(performative.equals(performatives[i])){
-          result = static_cast<Performative>(i);
+          result = static_cast<Performative>(i + 1);
           break;
         }
       }

@@ -1,10 +1,11 @@
 #pragma once
 
-#include "MessageDispatcher.h"
 #include "AID.h"
 #include "AclMessage.h"
 #include <list>
 #include "Configuration.h"
+#include "MessageTemplate.h"
+#include "MessageDispatcher.h"
 
 class Agent{
   private:
@@ -42,8 +43,8 @@ class Agent{
       messageDispatcher.send(message);
     }
 
-    AclMessage* receive(bool pop = true){
-      return messageDispatcher.receive(pop);
+    AclMessage* receive(MessageTemplate* _template = NULL){
+      return messageDispatcher.receive(_template);
     }
 
     void doBehaviours(){
