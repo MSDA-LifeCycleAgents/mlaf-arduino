@@ -14,7 +14,7 @@ void setup() {
 
   ntp.begin();
 
-  auto agent = new ExampleSensorAgent("NonCriticalSensorStuffAgent", ntp, 1234);
+  auto agent = new ExampleSensorAgent("NonCriticalSensorStuffAgent", 1234, ntp);
   AgentPlatform::blockingStart(agent);
 }
 

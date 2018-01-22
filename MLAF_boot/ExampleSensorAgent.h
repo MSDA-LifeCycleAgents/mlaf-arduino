@@ -6,17 +6,17 @@
 #include "arduino_adc_sensor.h"
 
 class ExampleSensorAgent : public SensorAgent{
-  public:
-    ExampleSensorAgent(const char* name, NTPClient& ntp, int port) : SensorAgent(name, ntp, port){}
+public:
+    ExampleSensorAgent(const char* name, int port, NTPClient& ntp) : SensorAgent(name, port, ntp){}
 
     void setup(){
-      addSensor(new TempSensor());
-      addSensor(new AcceleroSensor());
-      addSensor(new ADCSensor(A0));
+        addSensor(new TempSensor());
+        addSensor(new AcceleroSensor());
+        addSensor(new ADCSensor(A0));
 
-      // optionals:
-      setIdentifier("someidentifier");
-      setTopic("sometopic");
+        // optionals:
+        setIdentifier("someidentifier");
+        setTopic("sometopic");
       
 //      addBehaviour([this] {    
 //          AclMessage* message = receive();

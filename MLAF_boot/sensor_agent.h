@@ -8,27 +8,28 @@
 using namespace tinyxml2;
 
 class SensorAgent : public Agent{
-  private:
-    AID* decisionAgent;
+private:
+    AID* decisionAgent = nullptr;
     std::list<Sensor*> _sensors;
     const char* _name;
     const char* _identifier;
     const char* _topic;
     bool _toDecisionAgent = true;
-    NTPClient &ntp;
-  public:
+    NTPClient& _ntp;
+public:
     /**
      * Constructs a sensor agent
      * 
      * \param name the name of the sensor agent
-     * \param sensors a list of the sensors associated with the agent
+     * \param port the port to communicate over
+     * \param ntp the NTP client
     */
-    SensorAgent(const char* name, NTPClient &ntp, int port)
-        : Agent(name, port), _name{name}, ntp(ntp)
-    {  
-      decisionAgent = NULL;
-      
-      addBehaviour([this] {
+    SensorAgent(const char* name, int port, NTPClient &ntp)
+        : Agent(name, port), _name{name}, _ntp(ntp)
+    {}
+
+    void setup(){
+        addBehaviour([this] {
             getNTP().update();
             
             std::list<Sensor*> queue;
@@ -37,9 +38,9 @@ class SensorAgent : public Agent{
                     queue.push_back(sensor);
                 }
             }
-            if (decisionAgent != NULL) {
+            if (decisionAgent) {
                 if(queue.empty())
-                  return;
+                    return;
                   
                 auto msg = new AclMessage(INFORM);
                 msg->receiver = decisionAgent;
@@ -52,59 +53,59 @@ class SensorAgent : public Agent{
 
         // handshake behaviour
         addBehaviour([this] {
-          if(decisionAgent != NULL)
-            return;
+            if(decisionAgent)
+                return;
+              
+            AclMessage* message = receive();
+            if(!message)
+                return;
             
-          AclMessage* message = receive();
-          if(message == NULL)
-            return;
-          
-          // send instructions
-          if(message->performative == REQUEST){
-            AclMessage* response = message->createReply(SUBSCRIBE);
-            response->content = createInstructionSet();
-            
-            Envelope* env = new Envelope();
-            env->to = AID::copy(message->envelope->from);
-            env->from = response->sender;
-            env->intendedReceiver = response->receiver;
-            env->aclRepresentation = "fipa.acl.rep.string.std";
-            env->payloadEncoding = "US-ASCII";
-            response->envelope = env;
-            
-            Serial.println("Sending instructionset");
-            send(response);
+            // send instructions
+            if(message->performative == REQUEST){
+                AclMessage* response = message->createReply(SUBSCRIBE);
+                response->content = createInstructionSet();
+                
+                response->envelope = new Envelope(AID::copy(message->envelope->from), response->sender, response->receiver);
+                
+                Serial.println("Sending instructionset");
+                send(response);
 
-            AclMessage::destroy(message);
-          }
+                delete message;
+                message = nullptr;
+            }
 
-          // set decision agent AID
-          if(message->performative == CONFIRM){
-            decisionAgent = new AID(message->sender->getName(), message->sender->getAddress());
-            decisionAgent->setPort(message->sender->getPort());
-          }
+            // set decision agent AID
+            if(message->performative == CONFIRM){
+                decisionAgent = new AID(message->sender->getName(), message->sender->getAddress(), message->sender->getPort());
+            }
         });
     }
 
     NTPClient& getNTP(){
-      return ntp;
+        return _ntp;
     }
 
     void setIdentifier(const char* id){
-      _identifier = id;
+        _identifier = id;
     }
 
     void setTopic(const char* topicName){
-      _topic = topicName;
-      if(_topic)
-        _toDecisionAgent = false;
+        _topic = topicName;
+        if(_topic)
+          _toDecisionAgent = false;
     }
 
     void addSensor(Sensor* sensor){
-      _sensors.push_back(sensor);
+        _sensors.push_back(sensor);
     }
 
     // Functions
+
+    /**
+     * \brief Creates the instruction set in XML-format
+     * 
+     * \return the instrction set in XML-format
+     */
     const char* createInstructionSet()
     {
         XMLDocument doc;
@@ -187,7 +188,7 @@ class SensorAgent : public Agent{
         doc.InsertEndChild(root);
 
         auto timestamp = doc.NewElement("timestamp");
-        long unsigned int time = ntp.getEpochTime();
+        long unsigned int time = _ntp.getEpochTime();
         String time_str = String(time);
         timestamp->SetText(time_str.c_str());
         root->InsertEndChild(timestamp);
