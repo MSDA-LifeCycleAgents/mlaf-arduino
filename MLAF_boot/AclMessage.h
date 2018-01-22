@@ -2,6 +2,7 @@
 #include "Envelope.h"
 
 enum Performative{
+  UNSET,
   ACCEPT_PROPOSAL,
   AGREE,
   //CANCEL,
