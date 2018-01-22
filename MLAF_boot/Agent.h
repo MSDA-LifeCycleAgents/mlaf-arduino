@@ -56,5 +56,9 @@ class Agent{
     void addBehaviour(std::function< void()> behaviour){
       behaviours.push_back(behaviour);
     }
+
+    void setDefaultReceiver(AID* receiver){
+      messageDispatcher.setDefaultEnvelopeReceiver(receiver);
+    }
 };
 

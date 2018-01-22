@@ -9,7 +9,8 @@ using namespace tinyxml2;
 
 class SensorAgent : public Agent{
   private:
-    AID* decisionAgent;
+    AID* proxyAgent;
+    AID* receiverAgent;
     std::list<Sensor*> _sensors;
     const char* _name;
     const char* _identifier;
@@ -26,7 +27,8 @@ class SensorAgent : public Agent{
     SensorAgent(const char* name, NTPClient &ntp, int port)
         : Agent(name, port), _name{name}, ntp(ntp)
     {  
-      decisionAgent = NULL;
+      proxyAgent = NULL;
+      receiverAgent = NULL;
       
       addBehaviour([this] {
             getNTP().update();
@@ -37,12 +39,12 @@ class SensorAgent : public Agent{
                     queue.push_back(sensor);
                 }
             }
-            if (decisionAgent != NULL) {
+            if (receiverAgent != NULL) {
                 if(queue.empty())
                   return;
                   
                 auto msg = new AclMessage(INFORM);
-                msg->receiver = decisionAgent;
+                msg->receiver = receiverAgent;
                 msg->content = String(toXML(queue));
                 send(msg);
             }else{
@@ -51,40 +53,47 @@ class SensorAgent : public Agent{
         });
 
         // handshake behaviour
-        addBehaviour([this] {
-          if(decisionAgent != NULL)
-            return;
-            
+        addBehaviour([this] { 
           AclMessage* message = receive(MessageTemplate::matchPerformativeAndOntology(REQUEST, "sensor-agent-register", STARTS_WITH));
-          if(message == NULL)
+          if(!message)
             return;
+
+          proxyAgent = AID::copy(message->envelope->from);
+          setDefaultReceiver(proxyAgent);
+            
+          AclMessage* response = message->createReply(SUBSCRIBE);
+          response->content = createInstructionSet();
+          response->ontology = message->ontology;
           
-          // send instructions
-          if(message->performative == REQUEST){
-            AclMessage* response = message->createReply(SUBSCRIBE);
-            response->content = createInstructionSet();
-            response->ontology = message->ontology;
-            
-            Envelope* env = new Envelope();
-            env->to = AID::copy(message->envelope->from);
-            env->from = response->sender;
-            env->intendedReceiver = response->receiver;
-            env->aclRepresentation = "fipa.acl.rep.string.std";
-            env->payloadEncoding = "US-ASCII";
-            response->envelope = env;
-            
-            Serial.println("Sending instructionset");
-            send(response);
+          Envelope* env = new Envelope();
+          env->to = proxyAgent;
+          env->from = response->sender;
+          env->intendedReceiver = response->receiver;
+          env->aclRepresentation = "fipa.acl.rep.string.std";
+          env->payloadEncoding = "US-ASCII";
+          response->envelope = env;
+          
+          Serial.println("Sending instructionset");
+          send(response);
 
-            AclMessage::destroy(message);
-          }
-
-          // set decision agent AID
-          if(message->performative == CONFIRM){
-            decisionAgent = new AID(message->sender->getName(), message->sender->getAddress());
-            decisionAgent->setPort(message->sender->getPort());
-          }
+          AclMessage::destroy(message);
         });
+
+       addBehaviour([this] {
+         AclMessage* message = receive(MessageTemplate::matchPerformativeAndOntology(CONFIRM, "sensor-agent-register", STARTS_WITH));
+          if(!message || !message->replyTo)
+            return;
+            
+            receiverAgent = AID::copy(message->replyTo);
+          });
+    }
+
+    AID* getProxyAgent(){
+      return proxyAgent;
+    }
+
+    AID* getReceiverAgent(){
+      return receiverAgent;
     }
 
     NTPClient& getNTP(){

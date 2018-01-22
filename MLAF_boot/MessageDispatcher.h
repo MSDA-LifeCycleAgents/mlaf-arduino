@@ -7,7 +7,7 @@
 class MessageDispatcher{
   public:
     MessageDispatcher(){}
-  
+    
     void init(String wifi_ssid, String wifi_pass, int _port){
       socket.init(wifi_ssid, wifi_pass, _port);
     }
@@ -65,15 +65,20 @@ class MessageDispatcher{
         messageQueue.push_back(message);
       }
     }
+
+    void setDefaultEnvelopeReceiver(AID* aid){
+      defaultEnvelopeReceiver = aid;
+    }
   
   private:
     TcpSocket socket;
+    AID* defaultEnvelopeReceiver;
     std::list<AclMessage*> messageQueue;
     std::list<AclMessage*> cache;
 
     void createEnvelope(AclMessage* message){
       Envelope* env = new Envelope();
-      env->to = message->receiver;
+      env->to = defaultEnvelopeReceiver ? defaultEnvelopeReceiver : message->receiver;
       env->from = message->sender;
       env->intendedReceiver = message->receiver;
       env->aclRepresentation = "fipa.acl.rep.string.std";
