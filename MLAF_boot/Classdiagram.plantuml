@@ -1,0 +1,37 @@
+@startuml Class Diagram
+class AgentPlatform
+
+class Agent
+class SensorAgent
+class ExampleSensorAgent
+
+class AID
+class Envelope
+class AclMessage
+
+class MessageDispatcher
+class MessageParser
+
+class Sensor
+class TempSensor
+
+class TcpSocket
+
+Agent <-- SensorAgent
+Agent o-- AID
+Agent o-- AclMessage
+SensorAgent <-- ExampleSensorAgent
+AgentPlatform *-- ExampleSensorAgent
+ExampleSensorAgent *-- TempSensor
+
+MessageDispatcher *-- TcpSocket
+MessageDispatcher o-- Envelope
+MessageDispatcher o-- AclMessage
+AclMessage o-- Envelope
+Envelope o-- AID
+
+Sensor <-- TempSensor
+TcpSocket *-- MessageParser
+TcpSocket o-- AclMessage
+
+@enduml
