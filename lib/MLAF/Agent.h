@@ -1,11 +1,11 @@
 #pragma once
 
-#include "AID.h"
-#include "AclMessage.h"
+#include <AID.h>
+#include <AclMessage.h>
 #include <list>
 #include "Configuration.h"
-#include "MessageTemplate.h"
-#include "MessageDispatcher.h"
+#include <MessageTemplate.h>
+#include <MessageDispatcher.h>
 
 class Agent{
   private:
