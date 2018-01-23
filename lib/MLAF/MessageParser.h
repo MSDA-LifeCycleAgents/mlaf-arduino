@@ -8,7 +8,7 @@ class MessageParser{
   public:
     MessageParser(){}
     
-    String toXml(AclMessage* message){
+    String toXml(std::shared_ptr<AclMessage> message){
       XMLDocument doc;
       doc.InsertEndChild(doc.NewDeclaration());
       
@@ -55,7 +55,7 @@ class MessageParser{
       return result;
     }
 
-    AclMessage* fromXml(String message){
+    std::shared_ptr<AclMessage> fromXml(String message){
       XMLDocument doc;
       doc.Parse(message.c_str());
 
@@ -89,7 +89,7 @@ class MessageParser{
 
       std::shared_ptr<Envelope> envelope = xmlToEnvelope(doc.FirstChildElement("envelope"));
       
-      auto aclMessage = new AclMessage(performative);
+      auto aclMessage = std::make_shared<AclMessage>(performative);
       aclMessage->sender = sender;
       aclMessage->receiver = receiver;
       aclMessage->replyTo = replyTo;

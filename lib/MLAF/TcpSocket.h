@@ -49,9 +49,9 @@ class TcpSocket{
       server->begin();
     }
 
-    AclMessage* listen(){
+    std::shared_ptr<AclMessage> listen(){
       String request;
-      AclMessage* message = NULL;
+      std::shared_ptr<AclMessage> message = NULL;
       client = server->available();
       if(client){
         boolean currentLineIsBlank = true;
@@ -77,7 +77,7 @@ class TcpSocket{
       return message;
     }
 
-    int send(AclMessage* message){
+    int send(std::shared_ptr<AclMessage> message){
       if(client.connect(message->envelope->to->getAddress(), message->envelope->to->getPort())){   
         Serial.println("Starting message parser"); 
         MessageParser parser;

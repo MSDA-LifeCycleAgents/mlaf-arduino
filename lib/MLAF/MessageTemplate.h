@@ -13,7 +13,7 @@ class MessageTemplate{
 
     MessageTemplate(){}
   public:
-    boolean match(AclMessage* message){
+    boolean match(std::shared_ptr<AclMessage> message){
       boolean performativeOK, ontologyOK = false;
       
       if(performative != UNSET)
@@ -29,11 +29,11 @@ class MessageTemplate{
       return performativeOK && ontologyOK;
     }
 
-    boolean _matchPerformative(AclMessage* message, Performative performative){
+    boolean _matchPerformative(std::shared_ptr<AclMessage> message, Performative performative){
       return message->performative == performative;
     }
 
-    boolean _matchOntology(AclMessage* message, String ontology, MatchType matchBy){
+    boolean _matchOntology(std::shared_ptr<AclMessage> message, String ontology, MatchType matchBy){
       switch(matchBy){
         case EQUALS: return message->ontology.equals(ontology);
         case STARTS_WITH: return message->ontology.startsWith(ontology);

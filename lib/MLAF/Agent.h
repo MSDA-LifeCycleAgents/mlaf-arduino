@@ -33,7 +33,7 @@ class Agent{
       return aid;
     }
 
-    void send(AclMessage* message){
+    void send(std::shared_ptr<AclMessage> message){
       if(message->sender == NULL)
         message->sender = getAID();
 
@@ -43,7 +43,7 @@ class Agent{
       messageDispatcher.send(message);
     }
 
-    AclMessage* receive(MessageTemplate* _template = NULL){
+    std::shared_ptr<AclMessage> receive(MessageTemplate* _template = NULL){
       return messageDispatcher.receive(_template);
     }
 

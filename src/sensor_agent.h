@@ -44,7 +44,7 @@ class SensorAgent : public Agent{
                 if(queue.empty())
                   return;
                   
-                auto msg = new AclMessage(INFORM);
+                auto msg = std::make_shared<AclMessage>(INFORM);
                 msg->receiver = receiverAgent;
                 msg->content = String(toXML(queue));
                 msg->ontology = "sensor-agent-reading";
@@ -56,14 +56,14 @@ class SensorAgent : public Agent{
 
         // handshake behaviour
         addBehaviour([this] { 
-          AclMessage* message = receive(MessageTemplate::matchPerformativeAndOntology(REQUEST, "sensor-agent-register", STARTS_WITH));
+          auto message = receive(MessageTemplate::matchPerformativeAndOntology(REQUEST, "sensor-agent-register", STARTS_WITH));
           if(!message)
             return;
 
           proxyAgent = AID::copy(message->envelope->from);
           setDefaultReceiver(proxyAgent);
             
-          AclMessage* response = message->createReply(SUBSCRIBE);
+          auto response = message->createReply(SUBSCRIBE);
           response->content = createInstructionSet();
           response->ontology = message->ontology;
           
@@ -82,7 +82,7 @@ class SensorAgent : public Agent{
         });
 
        addBehaviour([this] {
-         AclMessage* message = receive(MessageTemplate::matchPerformativeAndOntology(CONFIRM, "sensor-agent-register", STARTS_WITH));
+         std::shared_ptr<AclMessage> message = receive(MessageTemplate::matchPerformativeAndOntology(CONFIRM, "sensor-agent-register", STARTS_WITH));
           if(!message || !message->replyTo)
             return;
             

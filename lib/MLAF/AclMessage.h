@@ -78,8 +78,8 @@ class AclMessage{
       return "Message from " + sender->getName() + ", address: " + sender->getAddress() + " to " + receiver->getName() + ", address: " + receiver->getAddress();
     }
 
-    AclMessage* createReply(Performative perf){
-      AclMessage* response = new AclMessage(perf);
+    std::shared_ptr<AclMessage> createReply(Performative perf){
+      auto response = std::make_shared<AclMessage>(perf);
       if(replyTo != NULL){
         response->receiver = std::make_shared<AID>(replyTo->getName(), replyTo->getAddress());
         response->receiver->setPort(replyTo->getPort());
@@ -90,9 +90,8 @@ class AclMessage{
       return response;
     }
 
-    static void destroy(AclMessage* message){ 
-      delete message;
-      message = NULL;
+    static void destroy(std::shared_ptr<AclMessage> message){ 
+      message.reset();
     }
 };
 

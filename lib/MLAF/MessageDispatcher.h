@@ -20,8 +20,8 @@ class MessageDispatcher{
       socket.advertise(name, description, timestamp);
    }
     
-    AclMessage* receive(MessageTemplate* _template){
-      AclMessage* result = NULL;
+    std::shared_ptr<AclMessage> receive(MessageTemplate* _template){
+      std::shared_ptr<AclMessage> result = NULL;
       for(auto message : messageQueue){
         if(_template == NULL || _template->match(message)){
           result = message;
@@ -32,7 +32,7 @@ class MessageDispatcher{
       return result;
     }
     
-    void send(AclMessage* message){
+    void send(std::shared_ptr<AclMessage> message){
       if(!message->envelope)
         createEnvelope(message);
         
@@ -40,7 +40,7 @@ class MessageDispatcher{
     }
 
     void sendCache(){
-      std::list<AclMessage*>::iterator i = cache.begin();
+      std::list<std::shared_ptr<AclMessage>>::iterator i = cache.begin();
 
       while(i != cache.end()){
         if(socket.send(*i) > 0){
@@ -53,14 +53,13 @@ class MessageDispatcher{
       for(auto message : cache){
         if(socket.send(message) > 0){
           cache.remove(message);
-          delete message;
-          message = NULL;
+          message.reset();
         }
       }
     }
 
     void fillQueue(){
-      AclMessage* message = socket.listen();
+      std::shared_ptr<AclMessage> message = socket.listen();
       if(message != NULL){
         messageQueue.push_back(message);
       }
@@ -73,10 +72,10 @@ class MessageDispatcher{
   private:
     TcpSocket socket;
     std::shared_ptr<AID> defaultEnvelopeReceiver;
-    std::list<AclMessage*> messageQueue;
-    std::list<AclMessage*> cache;
+    std::list<std::shared_ptr<AclMessage>> messageQueue;
+    std::list<std::shared_ptr<AclMessage>> cache;
 
-    void createEnvelope(AclMessage* message){
+    void createEnvelope(std::shared_ptr<AclMessage> message){
       auto env = std::make_shared<Envelope>();
       env->to = defaultEnvelopeReceiver ? defaultEnvelopeReceiver : message->receiver;
       env->from = message->sender;
