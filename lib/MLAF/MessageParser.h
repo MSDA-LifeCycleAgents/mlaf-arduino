@@ -14,11 +14,12 @@ class MessageParser{
       doc.InsertEndChild(doc.NewDeclaration());
 
       auto root = doc.NewElement("fipa-message");
-      if(root == NULL){
-        #ifdef DEBUG
-          Serial.println("DEBUG: no correct root element found");
-        #endif
-      }
+      // if(root == NULL){
+      //   #ifdef DEBUG
+      //     Serial.println("DEBUG: no correct root element found");
+      //   #endif
+      //   return NULL;
+      // }
 
       String perf = performativeToString(message->performative);
       char _perf[sizeof(perf) + 1];
@@ -82,10 +83,11 @@ class MessageParser{
         sender = xmlToAid(xmlSender);
       }
       else{
-        sender = NULL;
+        
         #ifdef DEBUG
           Serial.println("DEBUG: no sender defined");
         #endif
+        return NULL;
       }
       
 
@@ -95,10 +97,11 @@ class MessageParser{
         receiver = xmlToAid(xmlReceiver);
       }
       else{
-        receiver = NULL;
+        
         #ifdef DEBUG
           Serial.println("DEBUG: no receiver defined");
         #endif
+        return NULL;
       }
 
 
@@ -185,10 +188,11 @@ class MessageParser{
         to = xmlToAid(xmlTo);
       }
       else{
-        to = NULL;
+       
         #ifdef DEBUG
           Serial.println("DEBUG: nowhere to send to");
         #endif
+        return NULL;
       }
       
 
@@ -198,10 +202,11 @@ class MessageParser{
         from = xmlToAid(xmlFrom);
       }
       else{
-        from = NULL;
+        
         #ifdef DEBUG
           Serial.println("DEBUG: Where did the message come from?");
         #endif
+        return NULL;
       }
 
       String aclRepresentation = root->FirstChildElement("acl-representation")->GetText();
@@ -226,10 +231,10 @@ class MessageParser{
         name = aid->getName();
       }
       else{
-        name = "";
         #ifdef DEBUG
           Serial.println("DEBUG: no agent name defined");
         #endif
+        return NULL;
       }
       
 
