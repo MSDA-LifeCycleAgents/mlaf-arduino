@@ -40,7 +40,7 @@ class MessageParser{
       
       if(message->envelope != NULL){
         int messageLength = getMessageLength(doc);
-        Envelope* env = message->envelope;
+        auto env = message->envelope;
         env->payloadLength = messageLength;
         addEnvelopeToXml(doc, message->envelope);
       }
@@ -87,7 +87,7 @@ class MessageParser{
       auto xmlConversationID = root->FirstChildElement("conversation-id");
       String conversationID = xmlConversationID ? xmlConversationID->GetText() : NULL;
 
-      Envelope* envelope = xmlToEnvelope(doc.FirstChildElement("envelope"));
+      std::shared_ptr<Envelope> envelope = xmlToEnvelope(doc.FirstChildElement("envelope"));
       
       auto aclMessage = new AclMessage(performative);
       aclMessage->sender = sender;
@@ -111,7 +111,7 @@ class MessageParser{
       return message.length();
     }
   
-    void addEnvelopeToXml(XMLDocument& doc, Envelope* envelope){
+    void addEnvelopeToXml(XMLDocument& doc, std::shared_ptr<Envelope> envelope){
       auto envelopeElement = doc.NewElement("envelope");
       auto root = doc.NewElement("params");
       root->SetAttribute("index", "1");
@@ -141,8 +141,8 @@ class MessageParser{
       doc.InsertEndChild(envelopeElement);
     }
   
-    Envelope* xmlToEnvelope(XMLElement* element){
-      Envelope* envelope = new Envelope();
+    std::shared_ptr<Envelope> xmlToEnvelope(XMLElement* element){
+      auto envelope = std::make_shared<Envelope>();
 
       auto root = element->FirstChildElement("params");
 

@@ -77,7 +77,7 @@ class MessageDispatcher{
     std::list<AclMessage*> cache;
 
     void createEnvelope(AclMessage* message){
-      Envelope* env = new Envelope();
+      auto env = std::make_shared<Envelope>();
       env->to = defaultEnvelopeReceiver ? defaultEnvelopeReceiver : message->receiver;
       env->from = message->sender;
       env->intendedReceiver = message->receiver;

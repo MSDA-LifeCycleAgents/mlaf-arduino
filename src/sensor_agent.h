@@ -67,7 +67,7 @@ class SensorAgent : public Agent{
           response->content = createInstructionSet();
           response->ontology = message->ontology;
           
-          Envelope* env = new Envelope();
+          auto env = std::make_shared<Envelope>();
           env->to = proxyAgent;
           env->from = response->sender;
           env->intendedReceiver = response->receiver;

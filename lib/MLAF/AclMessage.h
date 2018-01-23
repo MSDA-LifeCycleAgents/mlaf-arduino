@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <Envelope.h>
 
 enum Performative{
@@ -28,7 +29,7 @@ enum Performative{
 
 class AclMessage{
   public:
-    Envelope* envelope;
+    std::shared_ptr<Envelope> envelope;
     Performative performative;
     std::shared_ptr<AID> sender;
     std::shared_ptr<AID> receiver;
@@ -90,7 +91,6 @@ class AclMessage{
     }
 
     static void destroy(AclMessage* message){ 
-      delete message->envelope;
       delete message;
       message = NULL;
     }
