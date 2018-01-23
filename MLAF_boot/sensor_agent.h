@@ -3,6 +3,7 @@
 #include <list>
 #include "sensor.h"
 #include "tinyxml2.h"
+#include "Configuration.h"
 #include <NTPClient.h>
 
 using namespace tinyxml2;
@@ -12,6 +13,7 @@ class SensorAgent : public Agent{
     AID* proxyAgent;
     AID* receiverAgent;
     std::list<Sensor*> _sensors;
+    std::list<AclMessage*> cache;
     const char* _name;
     const char* _identifier;
     const char* _topic;
@@ -32,23 +34,34 @@ class SensorAgent : public Agent{
       
       addBehaviour([this] {
             getNTP().update();
-            
             std::list<Sensor*> queue;
+            
             for (auto& sensor : _sensors) {
                 if (sensor->needsUpdate(getNTP().getEpochTime())) {
                     queue.push_back(sensor);
+                    
                 }
             }
+
+
+            auto msg = new AclMessage(INFORM);
+            msg->receiver = receiverAgent;
+            msg->content = String(toXML(queue));
+            
+            if(cache.size() > Msg_to_buffer ){
+              cache.pop_front();
+            }
+            cache.push_back(msg);
+            
             if (receiverAgent != NULL) {
-                if(queue.empty())
+                if(cache.empty())
                   return;
-                  
-                auto msg = new AclMessage(INFORM);
-                msg->receiver = receiverAgent;
-                msg->content = String(toXML(queue));
-                send(msg);
-            }else{
-              // TODO: cache values until decision agent exists
+                for (auto it = cache.cbegin(); it != cache.cend(); ++it){
+                  msg = *it;
+                  send(msg);
+                    
+                }
+              cache.clear();
             }
         });
 
