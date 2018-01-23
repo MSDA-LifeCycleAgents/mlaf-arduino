@@ -474,3 +474,4 @@ __pycache__/
 # End of https://www.gitignore.io/api/linux,macos,windows,jetbrains,platformio,sublimetext,visualstudio,visualstudiocode
 .vscode/c_cpp_properties.json
 .vscode/launch.json
+.vscode/settings.json
