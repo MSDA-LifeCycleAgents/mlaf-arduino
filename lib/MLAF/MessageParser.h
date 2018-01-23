@@ -64,13 +64,13 @@ class MessageParser{
       Performative performative = stringToPerformative(perfStr);
       
       auto xmlSender = root->FirstChildElement("sender");
-      AID* sender = xmlToAid(xmlSender);
+      auto sender = xmlToAid(xmlSender);
       
       auto xmlReceiver = root->FirstChildElement("receiver");
-      AID* receiver = xmlToAid(xmlReceiver);
+      auto receiver = xmlToAid(xmlReceiver);
 
       auto xmlReplyTo = root->FirstChildElement("reply-to");
-      AID* replyTo = xmlReplyTo ? xmlToAid(xmlReplyTo) : NULL;
+      auto replyTo = xmlReplyTo ? xmlToAid(xmlReplyTo) : NULL;
 
       auto xmlContent = root->FirstChildElement("content");
       String content = xmlContent ? xmlContent->GetText() : NULL;
@@ -147,10 +147,10 @@ class MessageParser{
       auto root = element->FirstChildElement("params");
 
       auto xmlTo = root->FirstChildElement("to");
-      AID* to = xmlToAid(xmlTo);
+      auto to = xmlToAid(xmlTo);
 
       auto xmlFrom = root->FirstChildElement("from");
-      AID* from = xmlToAid(xmlFrom);
+      auto from = xmlToAid(xmlFrom);
 
       String aclRepresentation = root->FirstChildElement("acl-representation")->GetText();
       String payloadLength = root->FirstChildElement("payload-length")->GetText();
@@ -165,7 +165,7 @@ class MessageParser{
       return envelope;
     }
   
-    XMLElement* AidToXml(XMLDocument& doc, AID* aid){
+    XMLElement* AidToXml(XMLDocument& doc, std::shared_ptr<AID> aid){
       auto agentIdentifier = doc.NewElement("agent-identifier");
       
       auto agent_name = doc.NewElement("name");
@@ -189,7 +189,7 @@ class MessageParser{
       return agentIdentifier;
     }
 
-    AID* xmlToAid(XMLElement* element){
+    std::shared_ptr<AID> xmlToAid(XMLElement* element){
       auto agentIdentifier = element->FirstChildElement("agent-identifier");
       String agent_name = agentIdentifier->FirstChildElement("name")->GetText();
       auto agent_addrss = agentIdentifier->FirstChildElement("addresses");      
@@ -216,7 +216,7 @@ class MessageParser{
         agent_addr.remove(0, 6);
       }
 
-      AID* aid = new AID(agent_name, agent_addr);
+      auto aid = std::make_shared<AID>(agent_name, agent_addr);
       aid->setPort(portStr.toInt());
       return aid;
     }

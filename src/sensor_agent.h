@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+#include <memory>
 #include "sensor.h"
 #include <tinyxml2.h>
 #include <NTPClient.h>
@@ -9,8 +10,8 @@ using namespace tinyxml2;
 
 class SensorAgent : public Agent{
   private:
-    AID* proxyAgent;
-    AID* receiverAgent;
+    std::shared_ptr<AID> proxyAgent;
+    std::shared_ptr<AID> receiverAgent;
     std::list<Sensor*> _sensors;
     const char* _name;
     const char* _identifier;
@@ -89,11 +90,11 @@ class SensorAgent : public Agent{
           });
     }
 
-    AID* getProxyAgent(){
+    std::shared_ptr<AID> getProxyAgent(){
       return proxyAgent;
     }
 
-    AID* getReceiverAgent(){
+    std::shared_ptr<AID> getReceiverAgent(){
       return receiverAgent;
     }
 

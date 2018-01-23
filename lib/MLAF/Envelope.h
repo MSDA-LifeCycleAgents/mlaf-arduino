@@ -1,11 +1,12 @@
 #pragma once
+#include<memory>
 #include <AID.h>
 
 class Envelope{
   public:
-    AID* to;
-    AID* from;
-    AID* intendedReceiver;
+    std::shared_ptr<AID> to;
+    std::shared_ptr<AID> from;
+    std::shared_ptr<AID> intendedReceiver;
     String aclRepresentation;
     String date;
     String payloadEncoding;

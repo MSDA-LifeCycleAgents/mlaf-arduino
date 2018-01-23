@@ -66,13 +66,13 @@ class MessageDispatcher{
       }
     }
 
-    void setDefaultEnvelopeReceiver(AID* aid){
+    void setDefaultEnvelopeReceiver(std::shared_ptr<AID> aid){
       defaultEnvelopeReceiver = aid;
     }
   
   private:
     TcpSocket socket;
-    AID* defaultEnvelopeReceiver;
+    std::shared_ptr<AID> defaultEnvelopeReceiver;
     std::list<AclMessage*> messageQueue;
     std::list<AclMessage*> cache;
 

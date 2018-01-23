@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 
 class AID{
   private:
@@ -44,8 +45,8 @@ class AID{
       port = _port;
     }
 
-    static AID* copy(AID* aid){
-      AID* copy = new AID(aid->getName(), aid->getAddress());
+    static std::shared_ptr<AID> copy(std::shared_ptr<AID> aid){
+      auto copy = std::make_shared<AID>(aid->getName(), aid->getAddress());
       copy->setPort(aid->getPort());
       return copy;
     }

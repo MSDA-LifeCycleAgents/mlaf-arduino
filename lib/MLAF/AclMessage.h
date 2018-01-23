@@ -30,9 +30,9 @@ class AclMessage{
   public:
     Envelope* envelope;
     Performative performative;
-    AID* sender;
-    AID* receiver;
-    AID* replyTo;
+    std::shared_ptr<AID> sender;
+    std::shared_ptr<AID> receiver;
+    std::shared_ptr<AID> replyTo;
     String content;
     String language;
     String ontology;
@@ -80,20 +80,17 @@ class AclMessage{
     AclMessage* createReply(Performative perf){
       AclMessage* response = new AclMessage(perf);
       if(replyTo != NULL){
-        response->receiver = new AID(replyTo->getName(), replyTo->getAddress());
+        response->receiver = std::make_shared<AID>(replyTo->getName(), replyTo->getAddress());
         response->receiver->setPort(replyTo->getPort());
       }else{
-        response->receiver = new AID(sender->getName(), sender->getAddress());
+        response->receiver = std::make_shared<AID>(sender->getName(), sender->getAddress());
         response->receiver->setPort(sender->getPort());
       }
       return response;
     }
 
-    static void destroy(AclMessage* message){
-      delete message->sender;
-      delete message->receiver;
+    static void destroy(AclMessage* message){ 
       delete message->envelope;
-      delete message->replyTo;
       delete message;
       message = NULL;
     }
