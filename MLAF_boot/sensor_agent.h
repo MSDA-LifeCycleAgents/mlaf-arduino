@@ -78,7 +78,6 @@ class SensorAgent : public Agent{
           Serial.println("Sending instructionset");
           send(response);
 
-          AclMessage::destroy(message);
         });
 
        addBehaviour([this] {

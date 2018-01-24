@@ -89,9 +89,5 @@ class AclMessage{
       }
       return response;
     }
-
-    static void destroy(std::shared_ptr<AclMessage> message){ 
-      message.reset();
-    }
 };
 

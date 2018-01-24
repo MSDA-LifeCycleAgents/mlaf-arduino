@@ -28,7 +28,6 @@ class ExampleSensorAgent : public SensorAgent{
 //              response->content = "I received your message!";
 //
 //              send(response);
-//              AclMessage::destroy(message);
 //            }
 //        });
     }
