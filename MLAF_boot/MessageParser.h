@@ -16,12 +16,6 @@ class MessageParser{
       XMLDocument doc;    
       
       auto root = doc.NewElement("fipa-message");
-      // if(root == NULL){
-      //   #ifdef DEBUG
-      //     Serial.println("DEBUG: no correct root element found");
-      //   #endif
-      //   return NULL;
-      // }
 
       String perf = performativeToString(message->performative);
       char _perf[sizeof(perf) + 1];
@@ -48,24 +42,17 @@ class MessageParser{
       addTag(doc, root, "ontology", message->ontology);
       addTag(doc, root, "protocol", message->protocol);
       addTag(doc, root, "conversation-id", message->conversationID);
-
-      if(message->envelope != NULL){
-        int messageLength = getMessageLength(doc);
-        Envelope* env = message->envelope;
-        env->payloadLength = messageLength;
-        addEnvelopeToXml(doc, message->envelope);
-      }
-      else{
-        #ifdef DEBUG
-          Serial.println("DEBUG: no envelope is found");
-        #endif
-      }
-
+      
+      int messageLength = getMessageLength(doc);
+      Envelope* env = message->envelope;
+      env->payloadLength = messageLength;
+      addEnvelopeToXml(doc, message->envelope);
+     
       doc.InsertFirstChild(doc.NewDeclaration());
       doc.InsertEndChild(root);
 
       XMLPrinter printer;
-      doc.Print(&printer);
+
       String result = printer.CStr();
       result.replace("&lt;", "<");
       result.replace("&gt;", ">");
@@ -132,6 +119,13 @@ class MessageParser{
       auto xmlConversationID = root->FirstChildElement("conversation-id");
       String conversationID = xmlConversationID ? xmlConversationID->GetText() : NULL;
 
+      auto xmlEnvelope = doc.FirstChildElement("envelope");
+      if(xmlEnvelope == NULL){
+        #ifdef DEBUG
+          Serial.println("DEBUG: message has no envelope");
+        #endif
+        return NULL;
+      }
       Envelope* envelope = xmlToEnvelope(doc.FirstChildElement("envelope"));
 
       auto aclMessage = new AclMessage(performative);
