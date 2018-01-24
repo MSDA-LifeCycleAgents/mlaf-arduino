@@ -17,7 +17,8 @@ class MessageParser{
       char _perf[sizeof(perf) + 1];
       perf.toCharArray(_perf, sizeof(_perf));
       root->SetAttribute("communicative-act", _perf);
-      
+
+      Serial.println("Message sender name: " + message->sender->getName());
       auto sender = doc.NewElement("sender");
       sender->InsertEndChild(AidToXml(doc, message->sender));
       root->InsertEndChild(sender);
@@ -37,7 +38,9 @@ class MessageParser{
       addTag(doc, root, "ontology", message->ontology);
       addTag(doc, root, "protocol", message->protocol);
       addTag(doc, root, "conversation-id", message->conversationID);
-      
+
+      doc.InsertEndChild(root);
+
       if(message->envelope != NULL){
         int messageLength = getMessageLength(doc);
         auto env = message->envelope;
@@ -46,11 +49,11 @@ class MessageParser{
       }
 
       doc.InsertFirstChild(doc.NewDeclaration());
-      doc.InsertEndChild(root);
       
       XMLPrinter printer;
       doc.Print(&printer);
       String result = printer.CStr();
+      printer.ClearBuffer();
       result.replace("&lt;", "<");
       result.replace("&gt;", ">");
       return result;
@@ -109,7 +112,10 @@ class MessageParser{
       XMLPrinter printer;
       doc.Print(&printer);
       String message = printer.CStr();
-      return message.length();
+      printer.ClearBuffer();
+      message.replace("&lt;", "<");
+      message.replace("&gt;", ">");
+      return message.length() + 1;
     }
   
     void addEnvelopeToXml(XMLDocument& doc, std::shared_ptr<Envelope> envelope){
@@ -137,11 +143,11 @@ class MessageParser{
         addTag(doc, root, "payload-encoding", envelope->payloadEncoding);
       
       addTag(doc, root, "payload-length", String(envelope->payloadLength));
-      if(envelope->date)
+      if(envelope->date && !envelope->date.equals(""))
         addTag(doc, root, "date", envelope->date);
       
       envelopeElement->InsertEndChild(root);
-      doc.InsertEndChild(envelopeElement);
+      doc.InsertFirstChild(envelopeElement);
     }
   
     std::shared_ptr<Envelope> xmlToEnvelope(XMLElement* element){
@@ -233,7 +239,7 @@ class MessageParser{
     }
     
     String performativeToString(Performative performative){
-      return performatives[performative];
+      return performatives[performative - 1];
     }
 
     Performative stringToPerformative(String performative){

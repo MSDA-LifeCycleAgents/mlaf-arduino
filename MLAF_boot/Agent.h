@@ -34,7 +34,7 @@ class Agent{
     }
 
     void send(std::shared_ptr<AclMessage> message){
-      if(message->sender == NULL)
+      if(!message->sender)
         message->sender = getAID();
 
       if(message->envelope && !message->envelope->from)
