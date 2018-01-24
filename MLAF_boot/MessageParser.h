@@ -1,7 +1,9 @@
 #pragma once
 
-#include <tinyxml2.h>
+
 #include "Configuration.h"
+#include "tinyxml2.h"
+
 
 using namespace tinyxml2;
 
