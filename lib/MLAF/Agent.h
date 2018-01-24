@@ -43,7 +43,7 @@ class Agent{
       messageDispatcher.send(message);
     }
 
-    std::shared_ptr<AclMessage> receive(MessageTemplate* _template = NULL){
+    std::shared_ptr<AclMessage> receive(std::shared_ptr<MessageTemplate> _template = NULL){
       return messageDispatcher.receive(_template);
     }
 

@@ -20,7 +20,7 @@ class MessageDispatcher{
       socket.advertise(name, description, timestamp);
    }
     
-    std::shared_ptr<AclMessage> receive(MessageTemplate* _template){
+    std::shared_ptr<AclMessage> receive(std::shared_ptr<MessageTemplate> _template){
       std::shared_ptr<AclMessage> result = NULL;
       for(auto message : messageQueue){
         if(_template == NULL || _template->match(message)){

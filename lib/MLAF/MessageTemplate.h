@@ -6,6 +6,7 @@ enum MatchType{
 };
 
 class MessageTemplate{
+  // friend std::make_shared<MessageTemplate>
   private:
     Performative performative = UNSET;
     String ontology = "-1";
@@ -43,21 +44,22 @@ class MessageTemplate{
 
     // factory
     
-    static MessageTemplate* matchPerformative(Performative _performative){
-      MessageTemplate* _template = new MessageTemplate();
+    static std::shared_ptr<MessageTemplate> matchPerformative(Performative _performative){
+      auto _template = std::shared_ptr<MessageTemplate>(new MessageTemplate);
+      
       _template->performative = _performative;
       return _template;
     }
 
-    static MessageTemplate* matchOntology(String _ontology, MatchType _match = EQUALS){
-      MessageTemplate* _template = new MessageTemplate();
+    static std::shared_ptr<MessageTemplate> matchOntology(String _ontology, MatchType _match = EQUALS){
+      auto _template = std::shared_ptr<MessageTemplate>(new MessageTemplate);
       _template->ontology = _ontology;
       _template->ontologyMatchType = _match;
       return _template;
     }
 
-    static MessageTemplate* matchPerformativeAndOntology(Performative _performative, String _ontology, MatchType _match = EQUALS){
-      MessageTemplate* _template = new MessageTemplate();
+    static std::shared_ptr<MessageTemplate> matchPerformativeAndOntology(Performative _performative, String _ontology, MatchType _match = EQUALS){
+      auto _template = std::shared_ptr<MessageTemplate>(new MessageTemplate);
       _template->performative = _performative;
       _template->ontology = _ontology;
       _template->ontologyMatchType = _match;
