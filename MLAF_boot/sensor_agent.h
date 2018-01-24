@@ -75,6 +75,8 @@ class SensorAgent : public Agent{
           response->envelope = env;
           
           Serial.println("Sending instructionset");
+          if(response->sender)
+            Serial.println("Instructionset sender: " + response->sender->getName());
           send(response);
 
           AclMessage::destroy(message);
