@@ -12,7 +12,7 @@ class SensorAgent : public Agent{
   private:
     std::shared_ptr<AID> proxyAgent;
     std::shared_ptr<AID> receiverAgent;
-    std::list<std::shared_ptr<sensor>> _sensors;
+    std::list<std::shared_ptr<Sensor>> _sensors;
     const char* _name;
     const char* _identifier;
     const char* _topic;
