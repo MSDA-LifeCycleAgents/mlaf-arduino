@@ -10,9 +10,9 @@ class MessageParser{
     MessageParser(){}
 
     String toXml(AclMessage* message){
-      XMLDocument doc;
-      doc.InsertEndChild(doc.NewDeclaration());
 
+      XMLDocument doc;    
+      
       auto root = doc.NewElement("fipa-message");
       // if(root == NULL){
       //   #ifdef DEBUG
@@ -59,6 +59,7 @@ class MessageParser{
         #endif
       }
 
+      doc.InsertFirstChild(doc.NewDeclaration());
       doc.InsertEndChild(root);
 
       XMLPrinter printer;
@@ -168,14 +169,15 @@ class MessageParser{
 
       auto intendedReceiver = doc.NewElement("intended-receiver");
       if(envelope->intendedReceiver)
-        intendedReceiver->InsertEndChild(AidToXml(doc, envelope->intendedReceiver));
+        intendedReceiver->InsertEndChild(AidToXml(doc, envelope->intendedReceiver));       
+      root->InsertFirstChild(intendedReceiver);
 
-      root->InsertEndChild(intendedReceiver);
-
-      addTag(doc, root, "acl-representation", envelope->aclRepresentation);
-      addTag(doc, root, "payload-encoding", envelope->payloadEncoding);
+      if(envelope->aclRepresentation)
+        addTag(doc, root, "acl-representation", envelope->aclRepresentation);
+      if(envelope->payloadEncoding)
+        addTag(doc, root, "payload-encoding", envelope->payloadEncoding);
+      
       addTag(doc, root, "payload-length", String(envelope->payloadLength));
-
       if(envelope->date)
         addTag(doc, root, "date", envelope->date);
 

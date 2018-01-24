@@ -119,7 +119,6 @@ class SensorAgent : public Agent{
     const char* createInstructionSet()
     {
         XMLDocument doc;
-        doc.InsertEndChild(doc.NewDeclaration());
 
         auto instr = doc.NewElement("instructions");
         doc.InsertEndChild(instr);
