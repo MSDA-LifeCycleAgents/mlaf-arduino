@@ -2,7 +2,7 @@
 
 #include <list>
 #include "sensor.h"
-#include <tinyxml2.h>
+#include "tinyxml2.h"
 #include <NTPClient.h>
 
 using namespace tinyxml2;
