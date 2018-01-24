@@ -1,7 +1,6 @@
 #pragma once
 
 #include "sensor.h"
-#include <Arduino.h>
 
 class ADCSensor : public Sensor
 {

@@ -3,7 +3,7 @@
 #include <list>
 #include <memory>
 #include "sensor.h"
-#include <tinyxml2.h>
+#include "tinyxml2.h"
 #include <NTPClient.h>
 
 using namespace tinyxml2;
@@ -120,7 +120,6 @@ class SensorAgent : public Agent{
     const char* createInstructionSet()
     {
         XMLDocument doc;
-        doc.InsertEndChild(doc.NewDeclaration());
 
         auto instr = doc.NewElement("instructions");
         doc.InsertEndChild(instr);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tinyxml2.h>
+#include "tinyxml2.h"
 
 using namespace tinyxml2;
 
@@ -45,6 +45,7 @@ class MessageParser{
         addEnvelopeToXml(doc, message->envelope);
       }
 
+      doc.InsertFirstChild(doc.NewDeclaration());
       doc.InsertEndChild(root);
       
       XMLPrinter printer;
@@ -128,12 +129,14 @@ class MessageParser{
       if(envelope->intendedReceiver)
         intendedReceiver->InsertEndChild(AidToXml(doc, envelope->intendedReceiver));
         
-      root->InsertEndChild(intendedReceiver);
+      root->InsertFirstChild(intendedReceiver);
 
-      addTag(doc, root, "acl-representation", envelope->aclRepresentation);
-      addTag(doc, root, "payload-encoding", envelope->payloadEncoding);
+      if(envelope->aclRepresentation)
+        addTag(doc, root, "acl-representation", envelope->aclRepresentation);
+      if(envelope->payloadEncoding)
+        addTag(doc, root, "payload-encoding", envelope->payloadEncoding);
+      
       addTag(doc, root, "payload-length", String(envelope->payloadLength));
-
       if(envelope->date)
         addTag(doc, root, "date", envelope->date);
       
