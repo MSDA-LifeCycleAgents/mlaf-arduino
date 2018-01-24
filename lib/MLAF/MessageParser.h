@@ -74,6 +74,12 @@ class MessageParser{
       doc.Parse(message.c_str());
 
       auto root = doc.FirstChildElement("fipa-message");
+      if(root == NULL){
+        #ifdef DEBUG
+          Serial.println("DEBUG: root element is not fipa-message");
+        #endif
+        return NULL;
+      }
       String perfStr = root->Attribute("communicative-act");
       Performative performative = stringToPerformative(perfStr);
 
@@ -311,7 +317,7 @@ class MessageParser{
       #ifdef DEBUG
         Serial.println("DEBUG: Got unknown performative");
       #endif
-      return static_cast<Performative>(9); //9 = NOT_UNDERSTOOD
+      return static_cast<Performative>(0); //0 = unset
     }
 
     String performatives[20] = {
