@@ -12,7 +12,7 @@ class SensorAgent : public Agent{
   private:
     std::shared_ptr<AID> proxyAgent;
     std::shared_ptr<AID> receiverAgent;
-    std::list<Sensor*> _sensors;
+    std::list<std::shared_ptr<sensor>> _sensors;
     const char* _name;
     const char* _identifier;
     const char* _topic;
@@ -34,7 +34,7 @@ class SensorAgent : public Agent{
       addBehaviour([this] {
             getNTP().update();
             
-            std::list<Sensor*> queue;
+            std::list<std::shared_ptr<Sensor>> queue;
             for (auto& sensor : _sensors) {
                 if (sensor->needsUpdate(getNTP().getEpochTime())) {
                     queue.push_back(sensor);
@@ -111,7 +111,7 @@ class SensorAgent : public Agent{
         _toDecisionAgent = false;
     }
 
-    void addSensor(Sensor* sensor){
+    void addSensor(std::shared_ptr<Sensor> sensor){
       _sensors.push_back(sensor);
     }
 
@@ -189,7 +189,7 @@ class SensorAgent : public Agent{
      * 
      * \return an XML representation of the sensors
     */
-    const char* toXML(std::list<Sensor*> sensors)
+    const char* toXML(std::list<std::shared_ptr<Sensor>> sensors)
     {
         XMLDocument doc;
         doc.InsertEndChild(doc.NewDeclaration());

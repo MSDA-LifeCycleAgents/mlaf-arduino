@@ -10,9 +10,9 @@ class ExampleSensorAgent : public SensorAgent{
     ExampleSensorAgent(const char* name, NTPClient& ntp, int port) : SensorAgent(name, ntp, port){}
 
     void setup(){
-      addSensor(new TempSensor());
-      addSensor(new AcceleroSensor());
-      addSensor(new ADCSensor(A0));
+      addSensor(std::shared_ptr<Sensor>(new TempSensor()));
+      addSensor(std::shared_ptr<Sensor>(new AcceleroSensor()));
+      addSensor(std::shared_ptr<Sensor>(new ADCSensor(A0)));
 
       // optionals:
       setIdentifier("someidentifier");
