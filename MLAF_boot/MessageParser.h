@@ -10,7 +10,7 @@ class MessageParser{
     
     String toXml(std::shared_ptr<AclMessage> message){
       XMLDocument doc;
-      doc.InsertEndChild(doc.NewDeclaration());
+      doc.InsertFirstChild(doc.NewDeclaration());
       
       auto root = doc.NewElement("fipa-message");
       String perf = performativeToString(message->performative);
@@ -47,8 +47,6 @@ class MessageParser{
         env->payloadLength = messageLength;
         addEnvelopeToXml(doc, message->envelope);
       }
-
-      doc.InsertFirstChild(doc.NewDeclaration());
       
       XMLPrinter printer;
       doc.Print(&printer);
