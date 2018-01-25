@@ -1,25 +1,33 @@
 # mlaf-arduino
+This project is a microprocessor extension made for the JADE based [MLAF](https://github.com/MSDA-LifeCycleAgents/mlaf-java) project. For extensive usage of the framework, please carefully read the documentation provided in the MLAF repository. Additional instructions for the usage of this library and API examples are included in this file.
 
-## PlatformIO
-This project uses [PlatformIO](http://platformio.org) for dependency management and builds. Be sure to install the plugin for your favourite editor.
+## Quickstart
+* Set up a JADE based MLAF hub following the instructions in the [MLAF repository](https://github.com/MSDA-LifeCycleAgents/mlaf-java)
+* Install the Arduino enviroment and required libraries (see [Environment](##Environment) for more elaborate instructions)
+* Clone the master branch of this repository to a local directory
+* Open Configuration.h and edit WiFi_ssid and WiFi_pass
+* Deploy MLAF_boot.ino to your microprocessor
 
-## Cloning
-This project uses git submodules. To clone the project you should:
+You now have an external sensor agent connected to the HUB. The HUB logging feed should tell you if the registration went successful.
 
-```
-$ git clone --recurse-submodules <url>
-```
+## Configuration
 
+## Examples
 
-To initialize the submodule system after cloning without `--recurse-submodules`, you should: 
-```
-$ git submodule init
-$ git submodule update
-```
+## Environment
 
+### Arduino IDE
+This project uses [Arduino IDE](https://www.arduino.cc/en/Main/Software) for dependency management and builds. Be sure to install the IDE, following the instructions. 
 
-## Third-party libraries
-This project uses the TinyXML-2 library by Lee Thomason. This library is provide under the following license:
+#### Arduino libraries
+This project has dependencies on a number of Arduino libraries, listed below. Be sure to install them using the Arduino library manager.
+* ESP8266
+* ESP8266WiFi
+* NtpClientLib
+* ESP8266mDNS
+
+### Third-party libraries
+This project uses the TinyXML-2 library by Lee Thomason (source code included in the project). This library is provide under the following license:
 
 ```
 Original code by Lee Thomason (www.grinninglizard.com)
