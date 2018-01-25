@@ -10,7 +10,6 @@ class MessageParser{
     
     String toXml(std::shared_ptr<AclMessage> message){
       XMLDocument doc;
-      doc.InsertFirstChild(doc.NewDeclaration());
       
       auto root = doc.NewElement("fipa-message");
       String perf = performativeToString(message->performative);
@@ -47,6 +46,8 @@ class MessageParser{
         env->payloadLength = messageLength;
         addEnvelopeToXml(doc, message->envelope);
       }
+
+      doc.InsertFirstChild(doc.NewDeclaration());
       
       XMLPrinter printer;
       doc.Print(&printer);
@@ -198,6 +199,9 @@ class MessageParser{
 
     std::shared_ptr<AID> xmlToAid(XMLElement* element){
       auto agentIdentifier = element->FirstChildElement("agent-identifier");
+      if(!agentIdentifier->FirstChildElement("name") || !agentIdentifier->FirstChildElement("addresses"))
+        return NULL;
+      
       String agent_name = agentIdentifier->FirstChildElement("name")->GetText();
       auto agent_addrss = agentIdentifier->FirstChildElement("addresses");      
       String agent_addr = "";
