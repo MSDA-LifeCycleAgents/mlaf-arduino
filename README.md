@@ -10,7 +10,7 @@ Once deployed, the agent used Multicast DNS to advertise his existence. This mea
 * Open Configuration.h and edit WiFi_ssid and WiFi_pass
 * Deploy MLAF_boot.ino to your microprocessor
 
-You now have an external sensor agent connected to the HUB. The HUB logging feed should tell you if the registration went successful.
+You now have an external sensor agent connected to the HUB. The HUB logging feed should tell you if the registration went successful. For full usage of the framework extension, please read [Usage](#Usage).
 
 ## Configuration
 Framework configuration can be done through the Configuration.h header file.
@@ -29,7 +29,10 @@ Framework configuration can be done through the Configuration.h header file.
 
 The usage of WiFi ssid and pass should be implied by the title. The property mdns_description is the description that will be used to advertise the Agent over mDNS. The Msg_to_buffer property is used to define the number of sensor readings that will be cached when the HUB can not be reached.
 
-## Examples
+## Usage
+The framework is meant to deploy a single agent on a microprocessor. The agent can have additional behaviours that will be executed on each cycle. A number of example classes are included in this repository to demonstrate the usage.
+
+TODO: API uitleg. Misschien doxygen of iets?
 
 ## Support and contributing
 As this project is an extension to the [MLAF](https://github.com/MSDA-LifeCycleAgents/mlaf-java) project, the same rules to support and contributing apply to this project. As both projects are under the care of the same maintainers, issues and requests can be made in the [MLAF repository](https://github.com/MSDA-LifeCycleAgents/mlaf-java).
