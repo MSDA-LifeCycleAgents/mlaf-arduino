@@ -3,7 +3,7 @@ This project is a microprocessor extension made for the JADE based [MLAF](https:
 
 ## Quickstart
 * Set up a JADE based MLAF hub following the instructions in the [MLAF repository](https://github.com/MSDA-LifeCycleAgents/mlaf-java)
-* Install the Arduino enviroment and required libraries (see [Environment](##Environment) for more elaborate instructions)
+* Install the Arduino enviroment and required libraries (see [Environment](#Environment) for more elaborate instructions)
 * Clone the master branch of this repository to a local directory
 * Open Configuration.h and edit WiFi_ssid and WiFi_pass
 * Deploy MLAF_boot.ino to your microprocessor
