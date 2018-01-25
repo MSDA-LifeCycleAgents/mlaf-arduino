@@ -76,4 +76,4 @@ distribution.
 ```
 
 ## License
-??
+This project is licensed under the LGPL v2.1. See `LICENSE` for more details and the disclaimer.
