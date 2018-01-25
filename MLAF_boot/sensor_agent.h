@@ -146,24 +146,64 @@ class SensorAgent : public Agent{
         for (auto& sensor : _sensors)
         {
             auto s = doc.NewElement("sensor");
-            s->SetAttribute("id", sensor->getName());// TODO: replace spaces?
+            s->SetAttribute("id", sensor->getId());
             xSensors->InsertEndChild(s);
             auto label = doc.NewElement("label");
             label->SetText(sensor->getName());
             s->InsertEndChild(label);
-            auto sMin = doc.NewElement("min");
-            sMin->SetText(sensor->getMinVal());
-            s->InsertEndChild(sMin);
-            auto sMax = doc.NewElement("max");
-            sMax->SetText(sensor->getMaxVal());
-            s->InsertEndChild(sMax);
-
-            auto unit = doc.NewElement("unit");
-            unit->SetText(sensor->getUnit());
-            s->InsertEndChild(unit);
             auto interval = doc.NewElement("intervalinseconds");
             interval->SetText(sensor->getInterval());
             s->InsertEndChild(interval);
+            auto unit = doc.NewElement("unit");
+            unit->SetText(sensor->getUnit());
+            s->InsertEndChild(unit);
+            
+            auto mCollection = doc.NewElement("measurements");
+            s->InsertEndChild(mCollection);
+            // Measurement structure (meta-data)
+            for (auto& m : sensor->getMeasurementsMetadata())
+            {
+                auto xMeasurement = doc.NewElement("measurement");
+                xMeasurement->SetAttribute("id", m.Id);
+                mCollection->InsertEndChild(xMeasurement);
+                auto sMin = doc.NewElement("min");
+                sMin->SetText(m.Min);
+                xMeasurement->InsertEndChild(sMin);
+                auto sMax = doc.NewElement("max");
+                sMax->SetText(m.Max);
+                xMeasurement->InsertEndChild(sMax);
+                
+                auto xPlans = doc.NewElement("plans");
+                xMeasurement->InsertEndChild(xPlans);
+                for (auto& p : m.Plans)
+                {
+                    auto xp = doc.NewElement("plan");
+                    xPlans->InsertEndChild(xp);
+
+                    auto pBelow = doc.NewElement("below");
+                    if (p.PlanThresholdType & PlanType::Below)
+                        pBelow->SetText(p.ThresholdBelow);
+                    xp->InsertEndChild(pBelow);
+                    auto pAbove = doc.NewElement("above");
+                    if (p.PlanThresholdType & PlanType::Above)
+                        pAbove->SetText(p.ThresholdAbove);
+                    xp->InsertEndChild(pAbove);
+
+                    auto pMsg = doc.NewElement("message");
+                    pMsg->SetText(p.Message);
+                    xp->InsertEndChild(pMsg);
+                    auto pVia = doc.NewElement("via");
+                    pVia->SetText(p.Via);
+                    xp->InsertEndChild(pVia);
+                    auto pTo = doc.NewElement("to");
+                    pTo->SetText(p.To);
+                    xp->InsertEndChild(pTo);
+                    auto pLimit = doc.NewElement("limit");
+                    pLimit->SetText(p.Limit);
+                    xp->InsertEndChild(pLimit);
+                }
+            }
+
             
             auto backups = doc.NewElement("amountOfBackupMeasurements");
             backups->SetText(sensor->getNrBackupMeasurements());

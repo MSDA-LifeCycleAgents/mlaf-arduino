@@ -6,8 +6,14 @@ class TempSensor : public Sensor
 {
 public:
     TempSensor()
-        : Sensor("TemperatureSensor", "C", 30, -273.15f, 1000.0f, 10)
-    {}
+        : Sensor("TemperatureSensor",
+            "Temperature sensor",
+            "C", 10, 10)
+    {
+        Plan p{PlanType::Both, -50, 100.0f, "Are you sure this is alright?", "Slackagent", "#general", 5};
+        MeasurementMetadata mdata{"temp", -273.15f, 1000.0f, std::list<Plan>{p}};
+        addMeasurementMetadata(mdata);
+    }
 
     virtual bool activate() override
     {
