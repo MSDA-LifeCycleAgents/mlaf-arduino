@@ -1,5 +1,7 @@
 # mlaf-arduino
-This project is a microprocessor extension made for the JADE based [MLAF](https://github.com/MSDA-LifeCycleAgents/mlaf-java) project. For extensive usage of the framework, please carefully read the documentation provided in the MLAF repository. Additional instructions for the usage of this library and API examples are included in this file.
+This project is a microprocessor extension made for the JADE based [MLAF](https://github.com/MSDA-LifeCycleAgents/mlaf-java) project. It should be noted that the development of this framework extension is hardly focused on the ESP8266. For extensive usage of the framework, please carefully read the documentation provided in the MLAF repository. Additional instructions for the usage of this library and API examples are included in this file.
+
+Once deployed, the agent used Multicast DNS to advertise his existence. This means that both WiFi and a mDNS enabled requirement are needed for usage of this project.
 
 ## Quickstart
 * Set up a JADE based MLAF hub following the instructions in the [MLAF repository](https://github.com/MSDA-LifeCycleAgents/mlaf-java)
@@ -11,8 +13,26 @@ This project is a microprocessor extension made for the JADE based [MLAF](https:
 You now have an external sensor agent connected to the HUB. The HUB logging feed should tell you if the registration went successful.
 
 ## Configuration
+Framework configuration can be done through the Configuration.h header file.
+
+```
+////Wifi Config////
+#define WiFi_ssid "Enter WiFi SSID here"
+#define WiFi_pass "Enter WiFi password here"
+
+////mDNS Config////
+#define mdns_description "Enter mDNS description here"
+
+////Msg Buffer////
+#define Msg_to_buffer 20
+```
+
+The usage of WiFi ssid and pass should be implied by the title. The property mdns_description is the description that will be used to advertise the Agent over mDNS. The Msg_to_buffer property is used to define the number of sensor readings that will be cached when the HUB can not be reached.
 
 ## Examples
+
+## Support and contributing
+As this project is an extension to the [MLAF](https://github.com/MSDA-LifeCycleAgents/mlaf-java) project, the same rules to support and contributing apply to this project. As both projects are under the care of the same maintainers, issues and requests can be made in the [MLAF repository](https://github.com/MSDA-LifeCycleAgents/mlaf-java).
 
 ## Environment
 
@@ -51,3 +71,6 @@ must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source
 distribution.
 ```
+
+## License
+??
