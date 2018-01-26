@@ -5,10 +5,23 @@
 #include "accelero_sensor.h"
 #include "arduino_adc_sensor.h"
 
+/**
+ * \brief An exampe implementation of the SensorAgent
+ */
 class ExampleSensorAgent : public SensorAgent{
   public:
+    /**
+     * \brief Creates an ExampleSensorAgent
+     * 
+     * \param name the name to use
+     * \param port the port to use
+     * \param ntp the NTP-client to use
+     */
     ExampleSensorAgent(const char* name, NTPClient& ntp, int port) : SensorAgent(name, ntp, port){}
 
+    /**
+     * \brief Initial setup function
+     */
     void setup(){
       addSensor(std::shared_ptr<Sensor>(new TempSensor()));
       addSensor(std::shared_ptr<Sensor>(new AcceleroSensor()));

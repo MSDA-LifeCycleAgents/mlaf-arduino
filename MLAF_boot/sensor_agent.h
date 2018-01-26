@@ -8,6 +8,9 @@
 
 using namespace tinyxml2;
 
+/**
+ * \brief Communicates sensor data as an Agent
+ */
 class SensorAgent : public Agent{
   private:
     std::shared_ptr<AID> proxyAgent;
@@ -20,11 +23,12 @@ class SensorAgent : public Agent{
     NTPClient &ntp;
   public:
     /**
-     * Constructs a sensor agent
+     * \brief Constructs a sensor agent
      * 
      * \param name the name of the sensor agent
-     * \param sensors a list of the sensors associated with the agent
-    */
+     * \param port the port to communicate over
+     * \param ntp the NTP client
+     */
     SensorAgent(const char* name, NTPClient &ntp, int port)
         : Agent(name, port), _name{name}, ntp(ntp)
     {  
@@ -91,33 +95,68 @@ class SensorAgent : public Agent{
           });
     }
 
+    /**
+     * \brief Gets the current proxy agent (AID)
+     * 
+     * \return the AID of the proxy agent
+     */
     std::shared_ptr<AID> getProxyAgent(){
       return proxyAgent;
     }
 
+    /**
+     * \brief Gets the current receiver agent (AID)
+     * 
+     * \return the AID of the receiver agent
+     */
     std::shared_ptr<AID> getReceiverAgent(){
       return receiverAgent;
     }
 
+    /**
+     * \brief Gets NTP-client
+     * 
+     * \return the NTP-client
+     */
     NTPClient& getNTP(){
       return ntp;
     }
 
+    /**
+     * \brief Sets the identifier
+     * 
+     * \param id the new identifier
+     */
     void setIdentifier(const char* id){
       _identifier = id;
     }
 
+    /**
+     * \brief Sets the topic name
+     * 
+     * \param topicName the new topic name
+     */
     void setTopic(const char* topicName){
       _topic = topicName;
       if(_topic)
         _toDecisionAgent = false;
     }
 
+    /**
+     * \brief Adds a sensor to the agent
+     * 
+     * \param sensor the sensor to add
+     */
     void addSensor(std::shared_ptr<Sensor> sensor){
       _sensors.push_back(sensor);
     }
 
     // Functions
+    /**
+     * \brief Creates the instruction set in XML-format
+     * 
+     * \return the instrction set in XML-format
+     */
     const char* createInstructionSet()
     {
         XMLDocument doc;
@@ -184,7 +223,8 @@ class SensorAgent : public Agent{
     }
 
     /**
-     * Converts the selected sensors values to an XML representation.
+     * \brief Converts the selected sensors values to an XML representation.
+     * 
      * This includes the name of the sensor and its values.
      * 
      * \param sensors a list of selected sensors

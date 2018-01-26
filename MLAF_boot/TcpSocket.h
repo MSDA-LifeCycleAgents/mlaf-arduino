@@ -5,6 +5,9 @@
 #include "AclMessage.h"
 #include "MessageParser.h"
 
+/**
+ * \brief Allows communication using a TCP-socket
+ */
 class TcpSocket{
   private:  
     int default_port = 1234;
@@ -14,12 +17,27 @@ class TcpSocket{
     int port;
   
   public:
+    /**
+     * \brief Converts the current assigned IP-address to a String
+     * 
+     * \return the current IP-address as a String
+     */
     String getIpAddressAsString(){
       return String(ip[0]) + String(".") + String(ip[1]) + String(".") + String(ip[2]) + String(".") + String(ip[3]);
     }
 
+    /**
+     * Allows communication using a TCP-socket
+     */
     TcpSocket(){}
 
+    /**
+     * \brief Initialises the TCP-socket
+     * 
+     * \param wifi_ssid the WiFi SSID (access point address)
+     * \param wifi_pass the WiFi password
+     * \param port the port to use
+     */
     void init(String wifi_ssid, String wifi_pass, int _port){
       port = _port;
       server = new WiFiServer(port);
@@ -49,6 +67,11 @@ class TcpSocket{
       server->begin();
     }
 
+    /**
+     * \brief Listens for an ACL-message
+     * 
+     * \return the received ACL-message
+     */
     std::shared_ptr<AclMessage> listen(){
       String request;
       std::shared_ptr<AclMessage> message = NULL;
@@ -77,6 +100,13 @@ class TcpSocket{
       return message;
     }
 
+    /**
+     * \brief Sends an ACL-message to the specified recipient
+     * 
+     * \param message the ACL-message to send
+     * 
+     * \return the amount of bytes send, -1 if unable to connect
+     */
     int send(std::shared_ptr<AclMessage> message){
       if(client.connect(message->envelope->to->getAddress(), message->envelope->to->getPort())){   
         Serial.println("Starting message parser"); 
@@ -90,6 +120,13 @@ class TcpSocket{
       return -1;
     }
 
+    /**
+     * \brief Advertises this device using MDNS
+     * 
+     * \param name the name to advertise
+     * \param description the description to advertise
+     * \param timestamp the timestamp to advertise
+     */
     void advertise(String name, String description, String timestamp){
       String ipText = getIpAddressAsString();
       String locator = "tcp://" + ipText + String(":") + String(port);

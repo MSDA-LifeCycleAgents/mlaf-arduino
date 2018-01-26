@@ -4,10 +4,23 @@
 
 using namespace tinyxml2;
 
+/**
+ * \brief Parses ACL-messages to and from XML
+ */
 class MessageParser{
   public:
+    /**
+     * \brief Parses ACL-messages to and from XML
+     */
     MessageParser(){}
     
+    /**
+     * \brief Converts an ACL-message to XML-format
+     * 
+     * \param message the message to convert
+     * 
+     * \return an ACL-message in XML-format
+     */
     String toXml(std::shared_ptr<AclMessage> message){
       XMLDocument doc;
       
@@ -58,6 +71,13 @@ class MessageParser{
       return result;
     }
 
+    /**
+     * \brief Converts XML to an ACL-message
+     * 
+     * \param message the message to convert
+     * 
+     * \return an ACL-message
+     */
     std::shared_ptr<AclMessage> fromXml(String message){
       XMLDocument doc;
       doc.Parse(message.c_str());

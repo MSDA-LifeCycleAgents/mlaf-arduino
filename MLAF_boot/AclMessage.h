@@ -2,6 +2,9 @@
 #include <memory>
 #include "Envelope.h"
 
+/**
+ * \brief Performatives used in agent communication
+ */
 enum Performative{
   UNSET,
   ACCEPT_PROPOSAL,
@@ -27,6 +30,9 @@ enum Performative{
   PROPAGATE
 };
 
+/**
+ * \brief An Agent Communication Language message (ACL-message)
+ */
 class AclMessage{
   public:
     std::shared_ptr<Envelope> envelope;
@@ -40,6 +46,11 @@ class AclMessage{
     String protocol;
     String conversationID;
 
+    /**
+     * \brief Constructs an ACL-message
+     * 
+     * \param performative the enum-based performative to use
+     */
     AclMessage(Performative _performative){
       performative = _performative;
       sender = NULL;
@@ -48,6 +59,11 @@ class AclMessage{
       replyTo = NULL;
     }
 
+    /**
+     * \brief Constructs an ACL-message
+     * 
+     * \param performative the int-based performative to use
+     */
     AclMessage(int _performative){
       performative = static_cast<Performative>(_performative);
       sender = NULL;
@@ -56,8 +72,17 @@ class AclMessage{
       replyTo = NULL;
     }
 
+    /**
+     * \brief Constructs a default ACL-message
+     */
+    // TODO: determine if we need a default ACL-message, and if so, which performative should be used
     AclMessage(){}
 
+    /**
+     * \brief Compares against another ACL-message
+     * 
+     * \return <i>true</i> if both messages are equal, <i>false</i> otherwise
+     */
     bool equals(const AclMessage& other) const{
       bool send_eq = sender->getName() == other.sender->getName() && sender->getAddress() == other.sender->getAddress();
       bool rec_eq = receiver->getName() == other.receiver->getName() && receiver->getAddress() == other.receiver->getAddress();
@@ -66,18 +91,42 @@ class AclMessage{
       return send_eq && rec_eq && str_eq;
     }
 
+    /**
+     * \brief Compares against another ACL-message
+     * 
+     * \return <i>true</i> if both messages are equal, <i>false</i> otherwise
+     */
     bool operator==( const AclMessage& other) const{
       return this->equals(other);
     }
 
+    /**
+     * \brief Compares against another ACL-message
+     * 
+     * \return <i>true</i> if both messages are <b>NOT</b> equal, <i>false</i> otherwise
+     */
     bool operator!=( const AclMessage& other) const{
       return !this->equals(other);
     }
 
+    /**
+     * \brief Creates a human-readable string from the ACL-message
+     * 
+     * \return a human-readable ACL representation
+     */
     String toString(){
       return "Message from " + sender->getName() + ", address: " + sender->getAddress() + " to " + receiver->getName() + ", address: " + receiver->getAddress();
     }
 
+    /**
+     * \brief Creates a reply message
+     * 
+     * Automatically creates a reply message based on the <i>reply to</i> field
+     * 
+     * \param perf the performative to use
+     * 
+     * \return An ACL-message with a receiver field
+     */
     std::shared_ptr<AclMessage> createReply(Performative perf){
       auto response = std::make_shared<AclMessage>(perf);
       if(replyTo != NULL){
