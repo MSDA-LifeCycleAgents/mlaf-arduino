@@ -17,6 +17,7 @@ class ExampleSensorAgent : public SensorAgent{
       // optionals:
       setIdentifier("someidentifier");
       setTopic("sometopic");
+      setMissedData(5); //missed data packages before agent is unregistered
       
 //      addBehaviour([this] {    
 //          AclMessage* message = receive();
