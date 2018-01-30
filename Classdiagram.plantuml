@@ -1,4 +1,4 @@
-@startuml Class Diagram
+@startuml
 class AgentPlatform
 
 class Agent
@@ -7,7 +7,7 @@ class ExampleSensorAgent
 
 class AID
 class Envelope
-class AclMessage
+Class AclMessage
 
 class MessageDispatcher
 class MessageParser
@@ -28,6 +28,7 @@ MessageDispatcher *-- TcpSocket
 MessageDispatcher o-- Envelope
 MessageDispatcher o-- AclMessage
 AclMessage o-- Envelope
+AclMessage o-- AID
 Envelope o-- AID
 
 Sensor <-- TempSensor
