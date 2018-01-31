@@ -49,8 +49,21 @@ This project has dependencies on a number of Arduino libraries, listed below. Be
 * NtpClientLib
 * ESP8266mDNS
 
-### TinyXML-2
-This project uses the TinyXML-2 library by Lee Thomason (source code included in the project repository: `tinyxml2.cpp` and `tinyxml2.h`). This library is provide under the following license:
+## TO-DO(crashes)
+### The problem
+The Program crashes when it receives a message from JADE. 
+it goes wrong in the file (...) in the function (...)
+
+### What we've tried already
+the things that we've already tried are:
+* All the different methodes to convert a string into a char array that we could find.
+* 
+* Looked at the memory usage of the program and it seems okay (still not sure if it actually is)
+* 
+
+
+### Third-party libraries
+This project uses the TinyXML-2 library by Lee Thomason (source code included in the project). This library is provide under the following license:
 
 ```
 Original code by Lee Thomason (www.grinninglizard.com)
@@ -76,4 +89,4 @@ distribution.
 ```
 
 ## License
-This project is licensed under the LGPL v2.1. See `LICENSE` for more details and the disclaimer.
+??
