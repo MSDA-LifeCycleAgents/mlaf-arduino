@@ -2,6 +2,9 @@
 
 #include "sensor.h"
 
+/**
+ * @brief      A dummy temperature sensor, that always reports 20 degrees Celcius
+ */
 class TempSensor : public Sensor
 {
 public:

@@ -1,6 +1,9 @@
 #pragma once
 #include "Agent.h"
 
+/**
+ * @brief      Class for agent platform.
+ */
 class AgentPlatform{
   public:
     static void blockingStart(Agent* agent){

@@ -8,6 +8,12 @@ class MessageParser{
   public:
     MessageParser(){}
     
+    /**
+     * @brief      Convert an ACL Message into an XML String
+     *
+     * @param[in]  message  The message
+     *
+     */
     String toXml(std::shared_ptr<AclMessage> message){
       XMLDocument doc;
       
@@ -58,6 +64,13 @@ class MessageParser{
       return result;
     }
 
+    /**
+     * @brief      Parse XML formatted messages into AclMessage object
+     *
+     * @param[in]  message  The message to parse
+     *
+     * @return     A std::shared_ptr<AclMessage> pointing to the parsed AclMessage
+     */
     std::shared_ptr<AclMessage> fromXml(String message){
       XMLDocument doc;
       doc.Parse(message.c_str());
