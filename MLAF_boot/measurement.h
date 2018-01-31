@@ -4,12 +4,12 @@
 #include "plan.h"
 
 struct MeasurementMetadata{
-    const char* Id;
+    String Id;
     double Min;
     double Max;
     std::list<Plan> Plans;
     
-    MeasurementMetadata(const char* id, double minVal, double maxVal, std::list<Plan> plans) {
+    MeasurementMetadata(String id, double minVal, double maxVal, std::list<Plan> plans) {
         Id = id;
         Min = minVal;
         Max = maxVal;

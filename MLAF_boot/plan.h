@@ -12,12 +12,12 @@ struct Plan
     PlanType PlanThresholdType;
     double ThresholdBelow;
     double ThresholdAbove;
-    const char* Message;
-    const char* Via;
-    const char* To;
+    String Message;
+    String Via;
+    String To;
     size_t Limit;
 
-    Plan(PlanType pType, double thresholdBelow, double thresholdAbove, const char* msg, const char* via, const char* to, size_t limit)
+    Plan(PlanType pType, double thresholdBelow, double thresholdAbove, String msg, String via, String to, size_t limit)
     //: this()
     {
         PlanThresholdType = pType;

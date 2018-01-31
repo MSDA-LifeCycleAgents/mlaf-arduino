@@ -14,11 +14,7 @@ class MessageParser{
       
       auto root = doc.NewElement("fipa-message");
       String perf = performativeToString(message->performative);
-      char _perf[sizeof(perf) + 1];
-      perf.toCharArray(_perf, sizeof(_perf));
-      root->SetAttribute("communicative-act", _perf);
-
-      Serial.println("Message sender name: " + message->sender->getName());
+      root->SetAttribute("communicative-act", perf.c_str());
       auto sender = doc.NewElement("sender");
       sender->InsertEndChild(AidToXml(doc, message->sender));
       root->InsertEndChild(sender);
@@ -42,14 +38,14 @@ class MessageParser{
       doc.InsertEndChild(root);
 
       if(message->envelope != NULL){
-        int messageLength = getMessageLength(doc);
-        auto env = message->envelope;
-        env->payloadLength = messageLength;
+        message->envelope->payloadLength = getMessageLength(doc);
         addEnvelopeToXml(doc, message->envelope);
       }
-      
-      XMLPrinter printer;
+
+      XMLPrinter printer(0, true);
       doc.Print(&printer);
+
+      doc.Clear();
       String result = printer.CStr();
       printer.ClearBuffer();
       result.replace("&lt;", "<");
@@ -107,7 +103,7 @@ class MessageParser{
     
   private:
     int getMessageLength(XMLDocument& doc){
-      XMLPrinter printer;
+      XMLPrinter printer(0, true);
       doc.Print(&printer);
       String message = printer.CStr();
       printer.ClearBuffer();
@@ -176,18 +172,12 @@ class MessageParser{
       auto agentIdentifier = doc.NewElement("agent-identifier");
       
       auto agent_name = doc.NewElement("name");
-      String name = aid->getName();
-
-      char _name[name.length() + 1];
-      name.toCharArray(_name, sizeof(_name));
-      agent_name->SetText(_name);
+      agent_name->SetText(aid->getName().c_str());
       
       auto agent_addrss = doc.NewElement("addresses");
       auto addr_url = doc.NewElement("url");
       String url = "tcp://" + aid->getAddress() + ":" + aid->getPort();
-      char _url[url.length() + 1];
-      url.toCharArray(_url, sizeof(_url));
-      addr_url->SetText(_url);
+      addr_url->SetText(url.c_str());
 
       agent_addrss->InsertEndChild(addr_url);
       agentIdentifier->InsertEndChild(agent_name);
@@ -210,7 +200,7 @@ class MessageParser{
           break;
         } 
       }
-
+      
       if(agent_addr.equals("") || agent_addr == NULL){
         int index = agent_name.indexOf('@');
         agent_addr = agent_name.substring(index + 1);
@@ -230,9 +220,7 @@ class MessageParser{
 
     void addTag(XMLDocument& doc, XMLElement* element, const char* tagName, String value){
       auto tag = doc.NewElement(tagName);
-      char _value[value.length() + 1];
-      value.toCharArray(_value, sizeof(_value));
-      tag->SetText(_value);
+      tag->SetText(value.c_str());
       element->InsertEndChild(tag);
     }
     

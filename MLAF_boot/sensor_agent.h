@@ -13,9 +13,9 @@ class SensorAgent : public Agent{
     std::shared_ptr<AID> proxyAgent;
     std::shared_ptr<AID> receiverAgent;
     std::list<std::shared_ptr<Sensor>> _sensors;
-    const char* _name;
-    const char* _identifier;
-    const char* _topic;
+    String _name;
+    String _identifier;
+    String _topic;
     bool _toDecisionAgent = true;
     NTPClient &ntp;
   public:
@@ -25,12 +25,12 @@ class SensorAgent : public Agent{
      * \param name the name of the sensor agent
      * \param sensors a list of the sensors associated with the agent
     */
-    SensorAgent(const char* name, NTPClient &ntp, int port)
+    SensorAgent(String name, NTPClient &ntp, int port)
         : Agent(name, port), _name{name}, ntp(ntp)
     {  
       proxyAgent = NULL;
       receiverAgent = NULL;
-      
+
       addBehaviour([this] {
             getNTP().update();
             
@@ -40,13 +40,13 @@ class SensorAgent : public Agent{
                     queue.push_back(sensor);
                 }
             }
-            if (receiverAgent != NULL) {
+            if (receiverAgent){
                 if(queue.empty())
                   return;
                   
                 auto msg = std::make_shared<AclMessage>(INFORM);
                 msg->receiver = receiverAgent;
-                msg->content = String(toXML(queue));
+                msg->content = toXML(queue);
                 msg->ontology = "sensor-agent-reading";
                 send(msg);
             }else{
@@ -103,11 +103,11 @@ class SensorAgent : public Agent{
       return ntp;
     }
 
-    void setIdentifier(const char* id){
+    void setIdentifier(String id){
       _identifier = id;
     }
 
-    void setTopic(const char* topicName){
+    void setTopic(String topicName){
       _topic = topicName;
       if(_topic)
         _toDecisionAgent = false;
@@ -118,14 +118,14 @@ class SensorAgent : public Agent{
     }
 
     // Functions
-    const char* createInstructionSet()
+    String createInstructionSet()
     {
         XMLDocument doc;
 
         auto instr = doc.NewElement("instructions");
         doc.InsertEndChild(instr);
         auto ident = doc.NewElement("identifier");
-        ident->SetText(_identifier);
+        ident->SetText(_identifier.c_str());
         instr->InsertEndChild(ident);
 
         // Messaging
@@ -134,7 +134,7 @@ class SensorAgent : public Agent{
         auto topic = doc.NewElement("topic");
         msg->InsertEndChild(topic);
         auto tName = doc.NewElement("name");
-        tName->SetText(_topic);
+        tName->SetText(_topic.c_str());
         topic->InsertEndChild(tName);
         auto toDA = doc.NewElement("directToDecisionAgent");
         toDA->SetText(_toDecisionAgent);
@@ -164,7 +164,7 @@ class SensorAgent : public Agent{
             for (auto& m : sensor->getMeasurementsMetadata())
             {
                 auto xMeasurement = doc.NewElement("measurement");
-                xMeasurement->SetAttribute("id", m.Id);
+                xMeasurement->SetAttribute("id", m.Id.c_str());
                 mCollection->InsertEndChild(xMeasurement);
                 auto sMin = doc.NewElement("min");
                 sMin->SetText(m.Min);
@@ -190,13 +190,13 @@ class SensorAgent : public Agent{
                     xp->InsertEndChild(pAbove);
 
                     auto pMsg = doc.NewElement("message");
-                    pMsg->SetText(p.Message);
+                    pMsg->SetText(p.Message.c_str());
                     xp->InsertEndChild(pMsg);
                     auto pVia = doc.NewElement("via");
-                    pVia->SetText(p.Via);
+                    pVia->SetText(p.Via.c_str());
                     xp->InsertEndChild(pVia);
                     auto pTo = doc.NewElement("to");
-                    pTo->SetText(p.To);
+                    pTo->SetText(p.To.c_str());
                     xp->InsertEndChild(pTo);
                     auto pLimit = doc.NewElement("limit");
                     pLimit->SetText(p.Limit);
@@ -218,9 +218,9 @@ class SensorAgent : public Agent{
         auto to = doc.NewElement("to");
         fallback->InsertEndChild(to);
 
-        XMLPrinter printer;
+        XMLPrinter printer(0, true);
         doc.Print(&printer);
-        return printer.CStr();
+        return String(printer.CStr());
     }
 
     /**
@@ -231,7 +231,7 @@ class SensorAgent : public Agent{
      * 
      * \return an XML representation of the sensors
     */
-    const char* toXML(std::list<std::shared_ptr<Sensor>> sensors)
+    String toXML(std::list<std::shared_ptr<Sensor>> sensors)
     {
         XMLDocument doc;
         doc.InsertEndChild(doc.NewDeclaration());
@@ -262,8 +262,8 @@ class SensorAgent : public Agent{
             }
         }
 
-        XMLPrinter printer;
+        XMLPrinter printer(0, true);
         doc.Print(&printer);
-        return printer.CStr();
+        return String(printer.CStr());
     }
 };
