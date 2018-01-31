@@ -40,6 +40,11 @@ class AclMessage{
     String protocol;
     String conversationID;
 
+    /**
+     * @brief      Constructor
+     *
+     * @param[in]  _performative  The performative
+     */
     AclMessage(Performative _performative){
       performative = _performative;
       sender = NULL;
@@ -48,6 +53,11 @@ class AclMessage{
       replyTo = NULL;
     }
 
+    /**
+     * @brief      Constructor
+     *
+     * @param[in]  _performative  The performative (number from list)
+     */
     AclMessage(int _performative){
       performative = static_cast<Performative>(_performative);
       sender = NULL;
@@ -56,8 +66,18 @@ class AclMessage{
       replyTo = NULL;
     }
 
+    /**
+     * @brief    Constructor
+     */
     AclMessage(){}
 
+
+    /**
+     * @brief      Test if a message is equal to another message
+     *
+     * @param[in]  other  The other message
+     *
+     */
     bool equals(const AclMessage& other) const{
       bool send_eq = sender->getName() == other.sender->getName() && sender->getAddress() == other.sender->getAddress();
       bool rec_eq = receiver->getName() == other.receiver->getName() && receiver->getAddress() == other.receiver->getAddress();
@@ -66,18 +86,43 @@ class AclMessage{
       return send_eq && rec_eq && str_eq;
     }
 
+    /**
+     * @brief      Test if a message is equal to another message
+     *
+     * @param[in]  other  The other message
+     *
+     */
     bool operator==( const AclMessage& other) const{
       return this->equals(other);
     }
 
+
+    /**
+     * @brief      Test if a messsage is not equal to another message
+     *
+     * @param[in]  other The other message
+     *
+     */
     bool operator!=( const AclMessage& other) const{
       return !this->equals(other);
     }
 
+    /**
+     * @brief      Returns a string representation of the ACLMessage.
+     *
+     * @return     String representation of the ACLMessage.
+     */
     String toString(){
       return "Message from " + sender->getName() + ", address: " + sender->getAddress() + " to " + receiver->getName() + ", address: " + receiver->getAddress();
     }
 
+    /**
+     * @brief      Creates a reply.
+     *
+     * @param[in]  perf  The Performative
+     *
+     * @return     A std::shared_ptr<AclMessage> to the generated reply message
+     */
     std::shared_ptr<AclMessage> createReply(Performative perf){
       auto response = std::make_shared<AclMessage>(perf);
       if(replyTo != NULL){

@@ -8,9 +8,14 @@ class MessageParser{
   public:
     MessageParser(){}
     
+    /**
+     * @brief      Convert an ACL Message into an XML String
+     *
+     * @param[in]  message  The message
+     *
+     */
     String toXml(std::shared_ptr<AclMessage> message){
       XMLDocument doc;
-      doc.InsertFirstChild(doc.NewDeclaration());
       
       auto root = doc.NewElement("fipa-message");
       String perf = performativeToString(message->performative);
@@ -42,9 +47,10 @@ class MessageParser{
         addEnvelopeToXml(doc, message->envelope);
       }
 
+      doc.InsertFirstChild(doc.NewDeclaration());
+      
       XMLPrinter printer(0, true);
       doc.Print(&printer);
-
       doc.Clear();
       String result = printer.CStr();
       printer.ClearBuffer();
@@ -53,6 +59,13 @@ class MessageParser{
       return result;
     }
 
+    /**
+     * @brief      Parse XML formatted messages into AclMessage object
+     *
+     * @param[in]  message  The message to parse
+     *
+     * @return     A std::shared_ptr<AclMessage> pointing to the parsed AclMessage
+     */
     std::shared_ptr<AclMessage> fromXml(String message){
       XMLDocument doc;
       doc.Parse(message.c_str());
@@ -188,6 +201,9 @@ class MessageParser{
 
     std::shared_ptr<AID> xmlToAid(XMLElement* element){
       auto agentIdentifier = element->FirstChildElement("agent-identifier");
+      if(!agentIdentifier->FirstChildElement("name") || !agentIdentifier->FirstChildElement("addresses"))
+        return NULL;
+      
       String agent_name = agentIdentifier->FirstChildElement("name")->GetText();
       auto agent_addrss = agentIdentifier->FirstChildElement("addresses");      
       String agent_addr = "";

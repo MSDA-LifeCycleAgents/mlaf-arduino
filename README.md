@@ -49,8 +49,8 @@ This project has dependencies on a number of Arduino libraries, listed below. Be
 * NtpClientLib
 * ESP8266mDNS
 
-### Third-party libraries
-This project uses the TinyXML-2 library by Lee Thomason (source code included in the project). This library is provide under the following license:
+### TinyXML-2
+This project uses the TinyXML-2 library by Lee Thomason (source code included in the project repository: `tinyxml2.cpp` and `tinyxml2.h`). This library is provide under the following license:
 
 ```
 Original code by Lee Thomason (www.grinninglizard.com)
@@ -76,4 +76,4 @@ distribution.
 ```
 
 ## License
-??
+This project is licensed under the LGPL v2.1. See `LICENSE` for more details and the disclaimer.
