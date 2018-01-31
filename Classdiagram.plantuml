@@ -21,7 +21,7 @@ Agent <-- SensorAgent
 Agent o-- AID
 Agent o-- AclMessage
 SensorAgent <-- ExampleSensorAgent
-AgentPlatform *-- ExampleSensorAgent
+AgentPlatform *-- Agent
 ExampleSensorAgent *-- TempSensor
 
 MessageDispatcher *-- TcpSocket
