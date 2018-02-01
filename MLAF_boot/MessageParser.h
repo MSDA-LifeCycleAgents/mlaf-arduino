@@ -1,6 +1,9 @@
 #pragma once
 
+
+#include "Configuration.h"
 #include "tinyxml2.h"
+
 
 using namespace tinyxml2;
 
@@ -18,13 +21,12 @@ class MessageParser{
       XMLDocument doc;
       
       auto root = doc.NewElement("fipa-message");
-      String perf = performativeToString(message->performative);
-      char _perf[sizeof(perf) + 1];
-      perf.toCharArray(_perf, sizeof(_perf));
-      root->SetAttribute("communicative-act", _perf);
 
-      Serial.println("Message sender name: " + message->sender->getName());
+      String perf = performativeToString(message->performative);
+
+      root->SetAttribute("communicative-act", perf.c_str());
       auto sender = doc.NewElement("sender");
+
       sender->InsertEndChild(AidToXml(doc, message->sender));
       root->InsertEndChild(sender);
 
@@ -47,16 +49,15 @@ class MessageParser{
       doc.InsertEndChild(root);
 
       if(message->envelope != NULL){
-        int messageLength = getMessageLength(doc);
-        auto env = message->envelope;
-        env->payloadLength = messageLength;
+        message->envelope->payloadLength = getMessageLength(doc);
         addEnvelopeToXml(doc, message->envelope);
       }
 
       doc.InsertFirstChild(doc.NewDeclaration());
       
-      XMLPrinter printer;
+      XMLPrinter printer(0, true);
       doc.Print(&printer);
+      doc.Clear();
       String result = printer.CStr();
       printer.ClearBuffer();
       result.replace("&lt;", "<");
@@ -76,14 +77,44 @@ class MessageParser{
       doc.Parse(message.c_str());
 
       auto root = doc.FirstChildElement("fipa-message");
+      if(root == NULL){
+        #ifdef DEBUG
+          Serial.println("DEBUG: root element is not fipa-message");
+        #endif
+        return NULL;
+      }
       String perfStr = root->Attribute("communicative-act");
       Performative performative = stringToPerformative(perfStr);
-      
+
       auto xmlSender = root->FirstChildElement("sender");
-      auto sender = xmlToAid(xmlSender);
+
+      std::shared_ptr<AID> sender;
+      if(xmlSender != NULL){
+        sender = xmlToAid(xmlSender);
+      }
+      else{
+        
+        #ifdef DEBUG
+          Serial.println("DEBUG: no sender defined");
+        #endif
+        return NULL;
+      }
+
       
+
       auto xmlReceiver = root->FirstChildElement("receiver");
-      auto receiver = xmlToAid(xmlReceiver);
+
+      std::shared_ptr<AID> receiver;
+      if(xmlReceiver != NULL){
+        receiver = xmlToAid(xmlReceiver);
+      }
+      else{
+        
+        #ifdef DEBUG
+          Serial.println("DEBUG: no receiver defined");
+        #endif
+        return NULL;
+      }
 
       auto xmlReplyTo = root->FirstChildElement("reply-to");
       auto replyTo = xmlReplyTo ? xmlToAid(xmlReplyTo) : NULL;
@@ -102,10 +133,18 @@ class MessageParser{
 
       auto xmlConversationID = root->FirstChildElement("conversation-id");
       String conversationID = xmlConversationID ? xmlConversationID->GetText() : NULL;
+      auto xmlEnvelope = doc.FirstChildElement("envelope");
+      if(xmlEnvelope == NULL){
+        #ifdef DEBUG
+          Serial.println("DEBUG: message has no envelope");
+        #endif
+        return NULL;
+      }
 
       std::shared_ptr<Envelope> envelope = xmlToEnvelope(doc.FirstChildElement("envelope"));
       
       auto aclMessage = std::make_shared<AclMessage>(performative);
+
       aclMessage->sender = sender;
       aclMessage->receiver = receiver;
       aclMessage->replyTo = replyTo;
@@ -115,13 +154,13 @@ class MessageParser{
       aclMessage->protocol = protocol;
       aclMessage->conversationID = conversationID;
       aclMessage->envelope = envelope;
-      
+
       return aclMessage;
     }
-    
+
   private:
     int getMessageLength(XMLDocument& doc){
-      XMLPrinter printer;
+      XMLPrinter printer(0, true);
       doc.Print(&printer);
       String message = printer.CStr();
       printer.ClearBuffer();
@@ -129,12 +168,13 @@ class MessageParser{
       message.replace("&gt;", ">");
       return message.length() + 1;
     }
-  
+
     void addEnvelopeToXml(XMLDocument& doc, std::shared_ptr<Envelope> envelope){
+
       auto envelopeElement = doc.NewElement("envelope");
       auto root = doc.NewElement("params");
       root->SetAttribute("index", "1");
- 
+
       auto from = doc.NewElement("from");
       from->InsertEndChild(AidToXml(doc, envelope->from));
       root->InsertEndChild(from);
@@ -145,8 +185,7 @@ class MessageParser{
 
       auto intendedReceiver = doc.NewElement("intended-receiver");
       if(envelope->intendedReceiver)
-        intendedReceiver->InsertEndChild(AidToXml(doc, envelope->intendedReceiver));
-        
+        intendedReceiver->InsertEndChild(AidToXml(doc, envelope->intendedReceiver));       
       root->InsertFirstChild(intendedReceiver);
 
       if(envelope->aclRepresentation)
@@ -157,21 +196,45 @@ class MessageParser{
       addTag(doc, root, "payload-length", String(envelope->payloadLength));
       if(envelope->date && !envelope->date.equals(""))
         addTag(doc, root, "date", envelope->date);
-      
+
       envelopeElement->InsertEndChild(root);
       doc.InsertFirstChild(envelopeElement);
     }
-  
+
     std::shared_ptr<Envelope> xmlToEnvelope(XMLElement* element){
       auto envelope = std::make_shared<Envelope>();
+
 
       auto root = element->FirstChildElement("params");
 
       auto xmlTo = root->FirstChildElement("to");
-      auto to = xmlToAid(xmlTo);
+
+      std::shared_ptr<AID> to;
+      if(xmlTo != NULL){
+        to = xmlToAid(xmlTo);
+      }
+      else{
+       
+        #ifdef DEBUG
+          Serial.println("DEBUG: nowhere to send to");
+        #endif
+        return NULL;
+      }
+      
 
       auto xmlFrom = root->FirstChildElement("from");
-      auto from = xmlToAid(xmlFrom);
+      std::shared_ptr<AID> from;
+      if(xmlTo != NULL){
+        from = xmlToAid(xmlFrom);
+      }
+      else{
+        
+        #ifdef DEBUG
+          Serial.println("DEBUG: Where did the message come from?");
+        #endif
+        return NULL;
+      }
+
 
       String aclRepresentation = root->FirstChildElement("acl-representation")->GetText();
       String payloadLength = root->FirstChildElement("payload-length")->GetText();
@@ -185,23 +248,18 @@ class MessageParser{
 
       return envelope;
     }
-  
-    XMLElement* AidToXml(XMLDocument& doc, std::shared_ptr<AID> aid){
-      auto agentIdentifier = doc.NewElement("agent-identifier");
-      
-      auto agent_name = doc.NewElement("name");
-      String name = aid->getName();
 
-      char _name[name.length() + 1];
-      name.toCharArray(_name, sizeof(_name));
-      agent_name->SetText(_name);
+    XMLElement* AidToXml(XMLDocument& doc, std::shared_ptr<AID> aid){
+
+      auto agentIdentifier = doc.NewElement("agent-identifier");
+
+      auto agent_name = doc.NewElement("name");
+      agent_name->SetText(aid->getName().c_str());
       
       auto agent_addrss = doc.NewElement("addresses");
       auto addr_url = doc.NewElement("url");
       String url = "tcp://" + aid->getAddress() + ":" + aid->getPort();
-      char _url[url.length() + 1];
-      url.toCharArray(_url, sizeof(_url));
-      addr_url->SetText(_url);
+      addr_url->SetText(url.c_str());
 
       agent_addrss->InsertEndChild(addr_url);
       agentIdentifier->InsertEndChild(agent_name);
@@ -216,7 +274,7 @@ class MessageParser{
         return NULL;
       
       String agent_name = agentIdentifier->FirstChildElement("name")->GetText();
-      auto agent_addrss = agentIdentifier->FirstChildElement("addresses");      
+      auto agent_addrss = agentIdentifier->FirstChildElement("addresses");
       String agent_addr = "";
 
       for(auto addr = agent_addrss->FirstChildElement("url"); addr != NULL; addr = addr->NextSiblingElement("url"))
@@ -225,9 +283,9 @@ class MessageParser{
         if(addr_text.startsWith("tcp")){
           agent_addr = addr_text;
           break;
-        } 
+        }
       }
-
+      
       if(agent_addr.equals("") || agent_addr == NULL){
         int index = agent_name.indexOf('@');
         agent_addr = agent_name.substring(index + 1);
@@ -247,12 +305,10 @@ class MessageParser{
 
     void addTag(XMLDocument& doc, XMLElement* element, const char* tagName, String value){
       auto tag = doc.NewElement(tagName);
-      char _value[value.length() + 1];
-      value.toCharArray(_value, sizeof(_value));
-      tag->SetText(_value);
+      tag->SetText(value.c_str());
       element->InsertEndChild(tag);
     }
-    
+
     String performativeToString(Performative performative){
       return performatives[performative - 1];
     }
@@ -262,14 +318,17 @@ class MessageParser{
       for(int i = 0; i < sizeof(performatives); i++){
         performative.toUpperCase();
         if(performative.equals(performatives[i])){
-          result = static_cast<Performative>(i + 1);
-          break;
+          return static_cast<Performative>(i + 1);
         }
       }
-      return result;
+      #ifdef DEBUG
+        Serial.println("DEBUG: Got unknown performative");
+      #endif
+      return static_cast<Performative>(0); //0 = unset
     }
 
-    String performatives[20] = {"ACCEPT_PROPOSAL",
+    String performatives[20] = {
+  "ACCEPT_PROPOSAL",
   "AGREE",
   "CFP",
   "CONFIRM",
@@ -290,4 +349,3 @@ class MessageParser{
   "PROXY",
   "PROPAGATE"};
 };
-

@@ -13,9 +13,12 @@ class SensorAgent : public Agent{
     std::shared_ptr<AID> proxyAgent;
     std::shared_ptr<AID> receiverAgent;
     std::list<std::shared_ptr<Sensor>> _sensors;
-    const char* _name;
-    const char* _identifier;
-    const char* _topic;
+    String _name;
+    String _identifier;
+    String _topic;
+    String _fallbackVia;
+    String _fallbackTo;
+    int _aomdp;
     bool _toDecisionAgent = true;
     NTPClient &ntp;
   public:
@@ -25,12 +28,12 @@ class SensorAgent : public Agent{
      * \param name the name of the sensor agent
      * \param sensors a list of the sensors associated with the agent
     */
-    SensorAgent(const char* name, NTPClient &ntp, int port)
+    SensorAgent(String name, NTPClient &ntp, int port)
         : Agent(name, port), _name{name}, ntp(ntp)
     {  
       proxyAgent = NULL;
       receiverAgent = NULL;
-      
+
       addBehaviour([this] {
             getNTP().update();
             
@@ -40,13 +43,13 @@ class SensorAgent : public Agent{
                     queue.push_back(sensor);
                 }
             }
-            if (receiverAgent != NULL) {
+            if (receiverAgent){
                 if(queue.empty())
                   return;
                   
                 auto msg = std::make_shared<AclMessage>(INFORM);
                 msg->receiver = receiverAgent;
-                msg->content = String(toXML(queue));
+                msg->content = toXML(queue);
                 msg->ontology = "sensor-agent-reading";
                 send(msg);
             }else{
@@ -103,14 +106,26 @@ class SensorAgent : public Agent{
       return ntp;
     }
 
-    void setIdentifier(const char* id){
+    void setIdentifier(String id){
       _identifier = id;
     }
 
-    void setTopic(const char* topicName){
+    void setTopic(String topicName){
       _topic = topicName;
       if(_topic)
         _toDecisionAgent = false;
+    }
+
+    void setFallbackVia(String via){
+        _fallbackVia = via;
+    }
+
+    void setFallbackTo(String to){
+        _fallbackTo = to;
+    }
+
+    void setMissedData(const int missedData){
+      _aomdp = missedData;
     }
 
     void addSensor(std::shared_ptr<Sensor> sensor){
@@ -118,27 +133,32 @@ class SensorAgent : public Agent{
     }
 
     // Functions
-    const char* createInstructionSet()
+    String createInstructionSet()
     {
         XMLDocument doc;
 
         auto instr = doc.NewElement("instructions");
         doc.InsertEndChild(instr);
         auto ident = doc.NewElement("identifier");
-        ident->SetText(_identifier);
+        ident->SetText(_identifier.c_str());
         instr->InsertEndChild(ident);
 
         // Messaging
         auto msg = doc.NewElement("messaging");
         instr->InsertEndChild(msg);
-        auto topic = doc.NewElement("topic");
-        msg->InsertEndChild(topic);
-        auto tName = doc.NewElement("name");
-        tName->SetText(_topic);
-        topic->InsertEndChild(tName);
+        if(!_toDecisionAgent){
+          auto topic = doc.NewElement("topic");
+          msg->InsertEndChild(topic);
+          auto tName = doc.NewElement("name");
+          tName->SetText(_topic.c_str());
+          topic->InsertEndChild(tName);
+        }
         auto toDA = doc.NewElement("directToDecisionAgent");
         toDA->SetText(_toDecisionAgent);
         msg->InsertEndChild(toDA);
+        auto aomdp = doc.NewElement("amountOfMissedDataPackages");
+        aomdp->SetText(_aomdp);
+        
         auto xSensors = doc.NewElement("sensors");
         instr->InsertEndChild(xSensors);
         
@@ -146,24 +166,64 @@ class SensorAgent : public Agent{
         for (auto& sensor : _sensors)
         {
             auto s = doc.NewElement("sensor");
-            s->SetAttribute("id", sensor->getName());// TODO: replace spaces?
+            s->SetAttribute("id", sensor->getId());
             xSensors->InsertEndChild(s);
             auto label = doc.NewElement("label");
             label->SetText(sensor->getName());
             s->InsertEndChild(label);
-            auto sMin = doc.NewElement("min");
-            sMin->SetText(sensor->getMinVal());
-            s->InsertEndChild(sMin);
-            auto sMax = doc.NewElement("max");
-            sMax->SetText(sensor->getMaxVal());
-            s->InsertEndChild(sMax);
-
-            auto unit = doc.NewElement("unit");
-            unit->SetText(sensor->getUnit());
-            s->InsertEndChild(unit);
             auto interval = doc.NewElement("intervalinseconds");
             interval->SetText(sensor->getInterval());
             s->InsertEndChild(interval);
+            auto unit = doc.NewElement("unit");
+            unit->SetText(sensor->getUnit());
+            s->InsertEndChild(unit);
+            
+            auto mCollection = doc.NewElement("measurements");
+            s->InsertEndChild(mCollection);
+            // Measurement structure (meta-data)
+            for (auto& m : sensor->getMeasurementsMetadata())
+            {
+                auto xMeasurement = doc.NewElement("measurement");
+                xMeasurement->SetAttribute("id", m.Id.c_str());
+                mCollection->InsertEndChild(xMeasurement);
+                auto sMin = doc.NewElement("min");
+                sMin->SetText(m.Min);
+                xMeasurement->InsertEndChild(sMin);
+                auto sMax = doc.NewElement("max");
+                sMax->SetText(m.Max);
+                xMeasurement->InsertEndChild(sMax);
+                
+                auto xPlans = doc.NewElement("plans");
+                xMeasurement->InsertEndChild(xPlans);
+                for (auto& p : m.Plans)
+                {
+                    auto xp = doc.NewElement("plan");
+                    xPlans->InsertEndChild(xp);
+
+                    auto pBelow = doc.NewElement("below");
+                    if (p.PlanThresholdType & PlanType::Below)
+                        pBelow->SetText(p.ThresholdBelow);
+                    xp->InsertEndChild(pBelow);
+                    auto pAbove = doc.NewElement("above");
+                    if (p.PlanThresholdType & PlanType::Above)
+                        pAbove->SetText(p.ThresholdAbove);
+                    xp->InsertEndChild(pAbove);
+
+                    auto pMsg = doc.NewElement("message");
+                    pMsg->SetText(p.Message.c_str());
+                    xp->InsertEndChild(pMsg);
+                    auto pVia = doc.NewElement("via");
+                    pVia->SetText(p.Via.c_str());
+                    xp->InsertEndChild(pVia);
+                    auto pTo = doc.NewElement("to");
+                    pTo->SetText(p.To.c_str());
+                    xp->InsertEndChild(pTo);
+                    auto pLimit = doc.NewElement("limit");
+                    pLimit->SetText(p.Limit);
+                    xp->InsertEndChild(pLimit);
+                }
+            }
+
             
             auto backups = doc.NewElement("amountOfBackupMeasurements");
             backups->SetText(sensor->getNrBackupMeasurements());
@@ -172,15 +232,20 @@ class SensorAgent : public Agent{
 
         auto fallback = doc.NewElement("fallback");
         instr->InsertEndChild(fallback);
-        auto via = doc.NewElement("via");
-        via->SetText("ScreenAgent"); // TODO: replace with proper agent
-        fallback->InsertEndChild(via);
-        auto to = doc.NewElement("to");
-        fallback->InsertEndChild(to);
+        auto fMsg = doc.NewElement("message");
+        String fallbackMsg = "This is the fallback message. " + _identifier + " is unregistered";
+        fMsg->SetText(fallbackMsg.c_str()); 
+        fallback->InsertEndChild(fMsg);
+        auto fVia = doc.NewElement("via");
+        fVia->SetText(_fallbackVia.c_str());
+        fallback->InsertEndChild(fVia);
+        auto fTo = doc.NewElement("to");
+        fTo->SetText(_fallbackTo.c_str());
+        fallback->InsertEndChild(fTo);
 
-        XMLPrinter printer;
+        XMLPrinter printer(0, true);
         doc.Print(&printer);
-        return printer.CStr();
+        return String(printer.CStr());
     }
 
     /**
@@ -191,7 +256,7 @@ class SensorAgent : public Agent{
      * 
      * \return an XML representation of the sensors
     */
-    const char* toXML(std::list<std::shared_ptr<Sensor>> sensors)
+    String toXML(std::list<std::shared_ptr<Sensor>> sensors)
     {
         XMLDocument doc;
         doc.InsertEndChild(doc.NewDeclaration());
@@ -222,8 +287,8 @@ class SensorAgent : public Agent{
             }
         }
 
-        XMLPrinter printer;
+        XMLPrinter printer(0, true);
         doc.Print(&printer);
-        return printer.CStr();
+        return String(printer.CStr());
     }
 };

@@ -3,6 +3,8 @@
 #include <map>
 #include <list>
 
+#include "measurement.h"
+
 /**
  * Base class for sensors
 */
@@ -48,6 +50,16 @@ public:
     }
 
     /**
+     * Gets the id associated with the sensor
+     *
+     * \return the id of the sensor
+     */
+    const char* getId()
+    {
+        return _id;
+    }
+
+    /**
      * Gets the name associated with the sensor
      *
      * \return the name of the sensor
@@ -67,24 +79,9 @@ public:
         return _interval;
     }
 
-    /**
-     * Gets the minimum value supported by the sensor
-     *
-     * \return the minimum value supported by the sensor
-     */
-    double getMinVal()
+    std::list<MeasurementMetadata> getMeasurementsMetadata()
     {
-        return _minVal;
-    }
-
-    /**
-     * Gets the maximum value supported by the sensor
-     *
-     * \return the maximum value supported by the sensor
-     */
-    double getMaxVal()
-    {
-        return _maxVal;
+        return _measurements;
     }
 
     /**
@@ -99,9 +96,9 @@ public:
 
     bool needsUpdate(unsigned long t)
     {
-        if (t > lastTimeUpdated + _interval)
+        if (t > _lastTimeUpdated + _interval)
         {
-            lastTimeUpdated = t;
+            _lastTimeUpdated = t;
             return true;
         }
         return false;
@@ -116,19 +113,32 @@ protected:
      * \param minval the minimum value expected from the sensor
      * \param maxval the maximum value expected from the sensor
     */
-    Sensor(const char* name, const char* unit, size_t interval, double minval, double maxval, size_t nrBackupMeasurements)
-        : _name{name}, _unit{unit}, _interval{interval}, _minVal{minval}, _maxVal{maxval}, _nrBackupMeasurements{nrBackupMeasurements}
+    Sensor(const char* id,
+        const char* name,
+        const char* unit,
+        size_t interval,
+        size_t nrBackupMeasurements)
+        : _id{id},
+        _name{name},
+        _unit{unit},
+        _interval{interval},
+        _nrBackupMeasurements{nrBackupMeasurements}
     {}
     
     bool active = false;
 
-private:
-    const char* _unit;
-    const char* _name;
-    const size_t _interval;
-    const double _minVal;
-    const double _maxVal;
-    const size_t _nrBackupMeasurements;
+    void addMeasurementMetadata(MeasurementMetadata measurementMetadata)
+    {
+        _measurements.push_back(measurementMetadata);
+    }
 
-    unsigned long lastTimeUpdated = 0;
+private:
+    const char* _id;
+    const char* _name;
+    const char* _unit;
+    const size_t _interval;
+    const size_t _nrBackupMeasurements;
+    std::list<MeasurementMetadata> _measurements;
+
+    unsigned long _lastTimeUpdated = 0;
 };
