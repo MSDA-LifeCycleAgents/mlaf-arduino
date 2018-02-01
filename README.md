@@ -32,7 +32,7 @@ The usage of WiFi ssid and pass should be implied by the title. The property mdn
 ## Usage
 The framework is meant to deploy a single agent on a microprocessor. The agent can have additional behaviours that will be executed on each cycle. A number of example classes are included in this repository to demonstrate the usage.
 
-TODO: API uitleg. Misschien doxygen of iets?
+
 
 ## Support and contributing
 As this project is an extension to the [MLAF](https://github.com/MSDA-LifeCycleAgents/mlaf-java) project, the same rules to support and contributing apply to this project. As both projects are under the care of the same maintainers, issues and requests can be made in the [MLAF repository](https://github.com/MSDA-LifeCycleAgents/mlaf-java).
@@ -74,6 +74,9 @@ must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source
 distribution.
 ```
+
+## Known Issues / Todo
+At the end of the project, there were still some open issues: #23 and #20. There might be a memory leak related to the sensor agent.
 
 ## License
 This project is licensed under the LGPL v2.1. See `LICENSE` for more details and the disclaimer.
