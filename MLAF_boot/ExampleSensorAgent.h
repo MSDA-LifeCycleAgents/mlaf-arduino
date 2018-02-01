@@ -18,6 +18,9 @@ class ExampleSensorAgent : public SensorAgent{
       setIdentifier("someidentifier");
       setTopic("sometopic");
       setMissedData(5); //missed data packages before agent is unregistered
+
+      setFallbackVia("SlackAgent");
+      setFallbackTo("#general");
       
 //      addBehaviour([this] {    
 //          AclMessage* message = receive();

@@ -16,6 +16,8 @@ class SensorAgent : public Agent{
     String _name;
     String _identifier;
     String _topic;
+    String _fallbackVia;
+    String _fallbackTo;
     int _aomdp;
     bool _toDecisionAgent = true;
     NTPClient &ntp;
@@ -114,6 +116,13 @@ class SensorAgent : public Agent{
         _toDecisionAgent = false;
     }
 
+    void setFallbackVia(String via){
+        _fallbackVia = via;
+    }
+
+    void setFallbackTo(String to){
+        _fallbackTo = to;
+    }
 
     void setMissedData(const int missedData){
       _aomdp = missedData;
@@ -223,14 +232,16 @@ class SensorAgent : public Agent{
 
         auto fallback = doc.NewElement("fallback");
         instr->InsertEndChild(fallback);
-        auto mes = doc.NewElement("message");
+        auto fMsg = doc.NewElement("message");
         String fallbackMsg = "This is the fallback message. " + _identifier + " is unregistered";
-        mes->SetText(fallbackMsg.c_str()); 
-        auto via = doc.NewElement("via");
-        via->SetText("ScreenAgent"); // TODO: replace with proper agent
-        fallback->InsertEndChild(via);
-        auto to = doc.NewElement("to");
-        fallback->InsertEndChild(to);
+        fMsg->SetText(fallbackMsg.c_str()); 
+        fallback->InsertEndChild(fMsg);
+        auto fVia = doc.NewElement("via");
+        fVia->SetText(_fallbackVia.c_str());
+        fallback->InsertEndChild(fVia);
+        auto fTo = doc.NewElement("to");
+        fTo->SetText(_fallbackTo.c_str());
+        fallback->InsertEndChild(fTo);
 
         XMLPrinter printer(0, true);
         doc.Print(&printer);
