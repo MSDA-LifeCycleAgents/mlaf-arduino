@@ -7,3 +7,6 @@
 
 ////Msg Buffer////
 #define Msg_to_buffer 20
+
+////Enable debugging////
+#define DEBUG 0

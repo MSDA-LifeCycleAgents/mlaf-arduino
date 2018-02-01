@@ -16,6 +16,7 @@ class SensorAgent : public Agent{
     String _name;
     String _identifier;
     String _topic;
+    int _aomdp;
     bool _toDecisionAgent = true;
     NTPClient &ntp;
   public:
@@ -113,6 +114,11 @@ class SensorAgent : public Agent{
         _toDecisionAgent = false;
     }
 
+
+    void setMissedData(const int missedData){
+      _aomdp = missedData;
+    }
+
     void addSensor(std::shared_ptr<Sensor> sensor){
       _sensors.push_back(sensor);
     }
@@ -131,14 +137,19 @@ class SensorAgent : public Agent{
         // Messaging
         auto msg = doc.NewElement("messaging");
         instr->InsertEndChild(msg);
-        auto topic = doc.NewElement("topic");
-        msg->InsertEndChild(topic);
-        auto tName = doc.NewElement("name");
-        tName->SetText(_topic.c_str());
-        topic->InsertEndChild(tName);
+        if(!_toDecisionAgent){
+          auto topic = doc.NewElement("topic");
+          msg->InsertEndChild(topic);
+          auto tName = doc.NewElement("name");
+          tName->SetText(_topic.c_str());
+          topic->InsertEndChild(tName);
+        }
         auto toDA = doc.NewElement("directToDecisionAgent");
         toDA->SetText(_toDecisionAgent);
         msg->InsertEndChild(toDA);
+        auto aomdp = doc.NewElement("amountOfMissedDataPackages");
+        aomdp->SetText(_aomdp);
+        
         auto xSensors = doc.NewElement("sensors");
         instr->InsertEndChild(xSensors);
         
@@ -212,6 +223,9 @@ class SensorAgent : public Agent{
 
         auto fallback = doc.NewElement("fallback");
         instr->InsertEndChild(fallback);
+        auto mes = doc.NewElement("message");
+        String fallbackMsg = "This is the fallback message. " + _identifier + " is unregistered";
+        mes->SetText(fallbackMsg.c_str()); 
         auto via = doc.NewElement("via");
         via->SetText("ScreenAgent"); // TODO: replace with proper agent
         fallback->InsertEndChild(via);
